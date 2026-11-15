@@ -39,6 +39,7 @@ use the editor.
 - Generate static route entry files during the dedicated Pages build and override only its root document shell; local output then matches deployment without nesting an SSR document inside the browser mount.
 - Capture an immutable plan snapshot at session start and migrate legacy sessions before editing a block; subsequent edits or deletions must not change recorded history or open sessions.
 - Share the block editor across import review and active-plan editing, persisting drafts locally; apply valid drafts explicitly to avoid exposing unfinished prescriptions.
+- Keep import day navigation and actions in one fixed editor dock, reserving scroll space for it; both remain reachable without hiding the final fields.
 - Dynamically load PDF.js and its bundled worker only in upload handlers; retain unrecognized table-row text as pending notes and ignore all text outside tables and never infer ambiguous associations.
 - Infer PDF table columns from semantic headers and rows from document geometry, never from exercise names or fixed page counts; keep unresolved source text editable and prescription metadata in backups and session snapshots.
 

@@ -36,7 +36,7 @@
   --primary: oklch(0.89 0.19 123);
   --primary-foreground: oklch(0.17 0.015 123);
   --secondary: oklch(0.23 0.005 140);
-  --muted-foreground: oklch(0.65 0.008 140);
+  --muted-foreground: oklch(0.75 0.008 140);
   --accent: oklch(0.28 0.015 140);
   --border: oklch(0.29 0.006 140);
   --destructive: oklch(0.68 0.17 25);
@@ -60,7 +60,7 @@
     background: var(--background);
     color: var(--foreground);
     font-family: var(--font-sans);
-    font-size: 14px;
+    font-size: 16px;
     letter-spacing: 0;
   }
   h1,
@@ -1188,5 +1188,114 @@ select.field-input {
   .editor-tools {
     width: 100%;
     justify-content: space-between;
+  }
+}
+
+/* Import navigation and confirmation remain available at every scroll position. */
+.import-review {
+  padding-bottom: 180px;
+}
+.import-dock {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(780px, calc(100% - 48px));
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  z-index: 40;
+}
+.import-dock .day-selector {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  margin: 0 0 12px;
+  padding-bottom: 4px;
+}
+.import-dock .day-selector button {
+  font-size: 15px;
+  min-width: 72px;
+  min-height: 48px;
+}
+.import-dock-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+}
+.import-dock-actions button {
+  min-height: 48px;
+  font-size: 15px;
+  padding-inline: 10px;
+  gap: 6px;
+}
+.set-prescription {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  padding-top: 8px;
+}
+.set-prescription > span {
+  color: var(--muted-foreground);
+  font-size: 14px;
+}
+.set-prescription strong {
+  color: var(--primary);
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.set-prescription strong span {
+  font-size: 15px;
+  font-weight: 500;
+}
+.set-row:not(.labels) + .set-row {
+  border-top: 1px solid var(--border);
+  margin-top: 10px;
+}
+.set-input {
+  font-size: 22px;
+  height: 52px;
+}
+.set-complete {
+  height: 48px;
+}
+.set-previous, .plan-notes, .exercise-target, .back-link,
+.editor-notes summary, .series-note-editor h3 {
+  font-size: 14px;
+}
+.set-row.labels, .save-status {
+  font-size: 12px;
+}
+@media (max-width: 640px) {
+  .import-dock {
+    bottom: calc(70px + env(safe-area-inset-bottom));
+    width: calc(100% - 24px);
+    padding: 10px;
+  }
+  .import-dock .day-selector {
+    gap: 6px;
+  }
+  .import-dock .day-selector button {
+    min-width: 68px;
+  }
+  .workout-exercise h3, .exercise-preview h3 {
+    font-size: 18px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+  }
+  .field-input {
+    font-size: 16px;
+  }
+  .eyebrow, .hero-meta, .hero-description, .bottom-nav a,
+  .sticky-action .tiny {
+    font-size: 12px;
+  }
+  .day-selector button {
+    font-size: 14px;
   }
 }

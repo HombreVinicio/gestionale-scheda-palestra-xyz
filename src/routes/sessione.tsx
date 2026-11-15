@@ -126,6 +126,10 @@ function Workout() {
             </div>
             {(session.results[e.id] ?? []).map((row, j) => (
               <div className="set-row" key={j}>
+                <div className="set-prescription">
+                  <span>Serie {j + 1}{e.seriesTargets?.[j]?.role ? ` · ${e.seriesTargets[j].role}` : ""}</span>
+                  <strong>{e.seriesTargets?.[j]?.reps || e.reps || "—"} <span>rip.</span></strong>
+                </div>
                 <span className="text-muted text-center">{j + 1}</span>
                 <input
                   className="set-input"
@@ -164,11 +168,6 @@ function Workout() {
                   <Check />
                 </Button>
                 <p className="set-previous">
-                  {e.seriesTargets?.[j] && (
-                    <span>
-                      {e.seriesTargets[j].role} · {e.seriesTargets[j].reps || "—"} rip. ·{" "}
-                    </span>
-                  )}
                   Serie {j + 1} · Prec.:{" "}
                   {previous?.results[e.id]?.[j]?.weight || previous?.results[e.id]?.[j]?.reps
                     ? `${previous.results[e.id]?.[j]?.weight || "—"} kg × ${previous.results[e.id]?.[j]?.reps || "—"}`

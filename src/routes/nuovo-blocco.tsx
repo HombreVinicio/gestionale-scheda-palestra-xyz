@@ -38,7 +38,7 @@ function NewBlock() {
     update((s) => ({ ...s, editorDraft: { mode: "new", block, source, imported } }));
   if (!ready) return <p className="text-muted">Caricamento scheda…</p>;
   return (
-    <div className="content-narrow">
+    <div className={`content-narrow ${draft ? "import-review" : ""}`}>
       <Link to="/" className="back-link">
         <ArrowLeft size={15} />
         Allenamento
@@ -66,6 +66,21 @@ function NewBlock() {
           <BlockEditor
             block={draft.block}
             onChange={(block) => setDraft(block, draft.source, draft.imported)}
+            fixedActions={
+              <div className="import-dock-actions">
+                <Button variant="outline" onClick={() => setDeleteDraft(true)}>
+                  <Trash2 />
+                  Elimina bozza
+                </Button>
+                <Button
+                  disabled={!validBlock(draft.block) || Boolean(state.currentSessionId)}
+                  onClick={() => setConfirm(true)}
+                >
+                  <Check />
+                  Attiva blocco
+                </Button>
+              </div>
+            }
           />
           {!validBlock(draft.block) && (
             <p className="error-message">
@@ -77,19 +92,6 @@ function NewBlock() {
               Chiudi l’allenamento in corso prima di attivare il nuovo blocco.
             </p>
           )}
-          <div className="sticky-action editor-action">
-            <Button variant="ghost" onClick={() => setDeleteDraft(true)}>
-              <Trash2 />
-              Elimina bozza
-            </Button>
-            <Button
-              disabled={!validBlock(draft.block) || Boolean(state.currentSessionId)}
-              onClick={() => setConfirm(true)}
-            >
-              Attiva blocco
-              <Check />
-            </Button>
-          </div>
           <p className="tiny text-muted mt-3">
             {saveError ? "Salvataggio non riuscito" : "Bozza salvata sul dispositivo"}
           </p>

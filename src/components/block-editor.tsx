@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowDown, ArrowUp, Check, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DayCountEditor } from "@/components/day-count-editor";
@@ -142,9 +142,11 @@ function PendingNote({
 export function BlockEditor({
   block,
   onChange,
+  fixedActions,
 }: {
   block: Block;
   onChange: (block: Block) => void;
+  fixedActions?: ReactNode;
 }) {
   const [chosenDay, setDay] = useState<Day>("A");
   const order = blockDays(block);
@@ -240,17 +242,21 @@ export function BlockEditor({
           ))}
         </section>
       )}
-      <div className="day-selector">
+      <div className={fixedActions ? "import-dock" : undefined}>
+      <div className="day-selector" aria-label="Giornate di allenamento">
         {order.map((d) => (
           <Button
             key={d}
             variant="ghost"
             className={day === d ? "selected" : ""}
+            aria-pressed={day === d}
             onClick={() => setDay(d)}
           >
             Giorno {d}
           </Button>
         ))}
+      </div>
+      {fixedActions}
       </div>
       <div className="section-heading">
         <h2>Giorno {day}</h2>

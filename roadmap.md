@@ -1,4 +1,5 @@
 # App allenamenti
+- [x] Giorni e azioni dell’importazione sempre visibili; ripetizioni per serie e testi più leggibili sul telefono, verificati con scorrimento e riapertura.
 - [x] Importare soltanto righe delle tabelle, ignorando tutto il testo esterno.
 - [x] Numero di giornate modificabile, riduzione con scelta e conferma, conservazione storico e confronti.
 - [x] Bozza con comandi grandi, lettere visibili e posizione stabile; verifica telefono e test.
