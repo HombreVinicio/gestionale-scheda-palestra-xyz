@@ -20,7 +20,7 @@ export function TrainingProvider({ children }: { children: ReactNode }) {
       const loaded = raw ? parseBackup(raw) : initialState();
       stateRef.current = loaded;
       setState(loaded);
-      if (!raw) localStorage.setItem(storageKey, JSON.stringify(loaded));
+      localStorage.setItem(storageKey, JSON.stringify(loaded));
     } catch {
       setSaveError(
         "Non è stato possibile leggere i dati salvati. Esporta un backup prima di continuare.",

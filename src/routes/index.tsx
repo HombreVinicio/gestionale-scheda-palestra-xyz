@@ -1,11 +1,21 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowRight, ArrowUpRight, Check, ChevronRight, Dumbbell, Info, Plus } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Check,
+  ChevronRight,
+  Dumbbell,
+  Info,
+  Plus,
+  Pencil,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyBlock } from "@/components/app-shell";
 import { useTraining } from "@/components/training-provider";
 import { beginSession, cursor, dayNames, days, formatDate, volume, type Day } from "@/lib/training";
 import trainingImage from "@/assets/training.jpg";
+import { PlanNotes } from "@/components/plan-notes";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -89,10 +99,20 @@ function TrainingHome() {
         <section>
           <div className="section-heading">
             <h2>Scheda</h2>
-            <span className="tiny text-muted">
-              {block.name} <span className="accent-text">/</span> Giorno {selected}
-            </span>
+            <Button asChild variant="outline">
+              <Link to="/modifica-blocco">
+                <Pencil />
+                Modifica blocco
+              </Link>
+            </Button>
           </div>
+          <PlanNotes {...block.notes} />
+          <PlanNotes {...block.dayNotes?.[selected]} />
+          {Boolean(block.pendingNotes?.length) && (
+            <p className="notice">
+              {block.pendingNotes?.length} indicazioni da verificare in Modifica blocco.
+            </p>
+          )}
           <div className="day-selector" aria-label="Scegli giornata">
             {days.map((d) => (
               <Button
@@ -115,6 +135,7 @@ function TrainingHome() {
                 <p>
                   {e.sets} serie <span className="accent-text">×</span> {e.reps} ripetizioni
                 </p>
+                <PlanNotes coach={e.note} personal={e.personalNote ?? ""} />
               </div>
               <span className="exercise-end tag">{e.muscle}</span>
             </div>

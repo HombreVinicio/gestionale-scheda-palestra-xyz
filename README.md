@@ -6,7 +6,7 @@ App in italiano per il telefono con schede A–D, registrazione delle serie, sto
 
 Le modifiche sono salvate immediatamente nel localStorage del browser. Non ci sono account o invio di risultati online. I dati non si sincronizzano tra dispositivi o domini: esporta un backup prima di cambiare browser o hosting. I backup JSON contengono i risultati e vanno conservati privatamente. Le sessioni iniziali DEMO sono esempi; le nuove sessioni sono personali.
 
-L’importazione PDF è **solo dimostrativa**: il documento non è letto, salvato o trasmesso. La schermata apre una scheda di esempio modificabile. Non inserire PDF, backup, credenziali o risultati personali nella repository pubblica. Il workflow pubblica solo l’output del sito; i documenti selezionati non vengono mai copiati nel progetto.
+I PDF con testo vengono letti localmente nel browser, senza inviare o salvare il documento. Solo giornate, esercizi completi e serie esplicitamente riconosciuti vengono associati; tutte le altre righe, incluse quelle a fondo pagina, restano da verificare. I PDF scansionati non hanno OCR: la scheda va inserita manualmente. «Prova senza PDF» resta dimostrativo. Note coach e personali sono disponibili a livello di blocco, giornata, esercizio e serie. «Modifica blocco» salva una bozza locale e applica la scheda agli allenamenti successivi; ogni sessione conserva una copia indipendente della scheda all’inizio dell’allenamento. I dati precedenti vengono aggiornati senza perdere risultati. Non inserire PDF, backup, credenziali o risultati personali nella repository pubblica. Il workflow pubblica solo l’output del sito.
 
 ## Sviluppo
 

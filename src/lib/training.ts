@@ -2,6 +2,10 @@ import { z } from "zod";
 
 export const days = ["A", "B", "C", "D"] as const;
 export type Day = (typeof days)[number];
+export const notesSchema = z.object({ coach: z.string(), personal: z.string() });
+export type Notes = z.infer<typeof notesSchema>;
+export const emptyNotes = (): Notes => ({ coach: "", personal: "" });
+const pendingNoteSchema = z.object({ id: z.string(), text: z.string(), source: z.string() });
 const exerciseSchema = z.object({
   id: z.string(),
   name: z.string().min(1),
@@ -9,12 +13,17 @@ const exerciseSchema = z.object({
   reps: z.string().min(1),
   note: z.string(),
   muscle: z.string(),
+  personalNote: z.string().optional(),
+  seriesNotes: z.array(notesSchema).optional(),
 });
 const blockSchema = z.object({
   id: z.string(),
   name: z.string(),
   archived: z.boolean(),
   demo: z.boolean(),
+  notes: notesSchema.optional(),
+  dayNotes: z.object({ A: notesSchema, B: notesSchema, C: notesSchema, D: notesSchema }).optional(),
+  pendingNotes: z.array(pendingNoteSchema).optional(),
   plan: z.object({
     A: z.array(exerciseSchema),
     B: z.array(exerciseSchema),
@@ -37,6 +46,14 @@ const sessionSchema = z.object({
   closedAt: z.string().nullable(),
   demo: z.boolean(),
   results: z.record(z.array(setSchema)),
+  snapshot: z
+    .object({
+      blockName: z.string(),
+      blockNotes: notesSchema,
+      dayNotes: notesSchema,
+      exercises: z.array(exerciseSchema),
+    })
+    .optional(),
 });
 export const stateSchema = z
   .object({
@@ -45,6 +62,14 @@ export const stateSchema = z
     activeBlockId: z.string().nullable(),
     sessions: z.array(sessionSchema),
     currentSessionId: z.string().nullable(),
+    editorDraft: z
+      .object({
+        mode: z.enum(["new", "edit"]),
+        block: blockSchema,
+        source: z.string(),
+        imported: z.boolean(),
+      })
+      .optional(),
   })
   .superRefine((s, ctx) => {
     const ids = s.blocks.map((b) => b.id);
@@ -195,6 +220,7 @@ export function beginSession(state: TrainingState, day: Day): TrainingState {
     startedAt: new Date().toISOString(),
     closedAt: null,
     demo: false,
+    snapshot: makeSnapshot(block, day),
     results: Object.fromEntries(
       block.plan[day].map((e) => [
         e.id,
@@ -234,7 +260,104 @@ export function reopenSession(state: TrainingState, id: string): TrainingState {
 }
 
 export function parseBackup(text: string): TrainingState {
-  return stateSchema.parse(JSON.parse(text));
+  return migrateState(stateSchema.parse(JSON.parse(text)));
+}
+export function makeSnapshot(block: Block, day: Day) {
+  return structuredClone({
+    blockName: block.name,
+    blockNotes: block.notes ?? emptyNotes(),
+    dayNotes: block.dayNotes?.[day] ?? emptyNotes(),
+    exercises: block.plan[day],
+  });
+}
+export function sessionSnapshot(session: Session, block: Block) {
+  return session.snapshot ?? makeSnapshot(block, session.day);
+}
+export function migrateState(state: TrainingState): TrainingState {
+  return {
+    ...state,
+    sessions: state.sessions.map((s) => {
+      const block = state.blocks.find((b) => b.id === s.blockId);
+      return s.snapshot || !block ? s : { ...s, snapshot: makeSnapshot(block, s.day) };
+    }),
+  };
+}
+export function saveBlock(state: TrainingState, block: Block): TrainingState {
+  const previous = state.blocks.find((b) => b.id === block.id);
+  if (!previous || previous.archived) return state;
+  // Capture legacy sessions before touching the plan, including any open session.
+  const migrated = migrateState(state);
+  const { editorDraft: _draft, ...rest } = migrated;
+  return {
+    ...rest,
+    blocks: migrated.blocks.map((b) => (b.id === block.id ? structuredClone(block) : b)),
+  };
+}
+export function reorderExercise(
+  plan: Block["plan"],
+  day: Day,
+  id: string,
+  direction: -1 | 1,
+): Block["plan"] {
+  const list = [...plan[day]];
+  const index = list.findIndex((e) => e.id === id);
+  const target = index + direction;
+  const exercise = list[index];
+  const other = list[target];
+  if (!exercise || !other) return plan;
+  list[index] = other;
+  list[target] = exercise;
+  return { ...plan, [day]: list };
+}
+export type NoteTarget =
+  | { level: "block" }
+  | { level: "day"; day: Day }
+  | { level: "exercise"; day: Day; exerciseId: string }
+  | { level: "series"; day: Day; exerciseId: string; series: number };
+export function assignPendingNote(
+  block: Block,
+  id: string,
+  target: NoteTarget,
+  kind: keyof Notes,
+): Block {
+  const pending = block.pendingNotes?.find((n) => n.id === id);
+  if (!pending) return block;
+  const append = (notes: Notes) => ({
+    ...notes,
+    [kind]: [notes[kind], pending.text].filter(Boolean).join("\n"),
+  });
+  let next = structuredClone(block);
+  if (target.level === "block") next.notes = append(next.notes ?? emptyNotes());
+  else if (target.level === "day") {
+    const map = next.dayNotes ?? {
+      A: emptyNotes(),
+      B: emptyNotes(),
+      C: emptyNotes(),
+      D: emptyNotes(),
+    };
+    next.dayNotes = { ...map, [target.day]: append(map[target.day]) };
+  } else {
+    const exercise = next.plan[target.day].find((e) => e.id === target.exerciseId);
+    if (
+      !exercise ||
+      (target.level === "series" && (target.series < 0 || target.series >= exercise.sets))
+    )
+      return block;
+    if (target.level === "exercise") {
+      if (kind === "coach")
+        exercise.note = [exercise.note, pending.text].filter(Boolean).join("\n");
+      else exercise.personalNote = [exercise.personalNote, pending.text].filter(Boolean).join("\n");
+    } else {
+      const list = Array.from(
+        { length: exercise.sets },
+        (_, i) => exercise.seriesNotes?.[i] ?? emptyNotes(),
+      );
+      list[target.series] = append(list[target.series] ?? emptyNotes());
+      exercise.seriesNotes = list;
+    }
+  }
+  next.pendingNotes = next.pendingNotes?.filter((n) => n.id !== id) ?? [];
+  return next;
 }
 export function volume(session: Session) {
   return Object.values(session.results)

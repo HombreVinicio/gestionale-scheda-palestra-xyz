@@ -493,6 +493,102 @@ progress::-moz-progress-bar {
 .bottom-nav {
   display: none;
 }
+.plan-notes {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.coach-indication {
+  color: var(--primary);
+}
+.personal-indication {
+  color: var(--muted-foreground);
+}
+.set-indication {
+  grid-column: 2 / 4;
+}
+.set-indication .plan-notes {
+  margin: 0 0 4px;
+}
+.editor-notes {
+  margin: 12px 0 16px;
+}
+.editor-notes summary {
+  color: var(--muted-foreground);
+  cursor: pointer;
+  padding: 8px 0;
+  font-size: 12px;
+}
+.note-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+.series-note-editor {
+  border-top: 1px solid var(--border);
+  margin-top: 12px;
+  padding-top: 12px;
+}
+.series-note-editor h3 {
+  font-size: 12px;
+}
+.pending-section {
+  margin: 20px 0;
+}
+.pending-section h2 {
+  font-size: 17px;
+  margin-bottom: 12px;
+}
+.pending-note {
+  border-bottom: 1px solid var(--border);
+  padding: 12px 0;
+}
+.pending-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 110px 36px;
+  gap: 8px;
+  margin-top: 8px;
+  align-items: center;
+}
+.editor-tools {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.editor-tools select {
+  width: 54px;
+}
+.archived-series-note {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+.archived-series-note .plan-notes {
+  margin: 4px 0;
+}
+@media (max-width: 640px) {
+  .note-fields {
+    gap: 8px;
+  }
+  .pending-actions {
+    grid-template-columns: minmax(0, 1fr) 85px 36px;
+  }
+  .editor-tools {
+    gap: 0;
+  }
+  .editor-tools select {
+    width: 44px;
+  }
+  .edit-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
 .content-narrow {
   max-width: 780px;
   margin: auto;

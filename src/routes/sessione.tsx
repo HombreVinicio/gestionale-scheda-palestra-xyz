@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, Check, CheckCheck, Info, LockKeyhole } from "lucide-react";
+import { ArrowLeft, Check, CheckCheck, LockKeyhole, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeading } from "@/components/app-shell";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { useTraining } from "@/components/training-provider";
-import { closeSession, dayNames } from "@/lib/training";
+import { closeSession, dayNames, sessionSnapshot } from "@/lib/training";
+import { PlanNotes } from "@/components/plan-notes";
 export const Route = createFileRoute("/sessione")({
   head: () => ({
     meta: [
@@ -43,6 +44,7 @@ function Workout() {
       </div>
     );
   const all = Object.values(session.results).flat();
+  const snapshot = sessionSnapshot(session, block);
   const count = all.filter((s) => s.done).length;
   const change = (
     exerciseId: string,
@@ -74,19 +76,35 @@ function Workout() {
         <ArrowLeft size={15} /> Allenamento
       </Link>
       <PageHeading
-        eyebrow={`${block.name} · SETTIMANA ${session.week}`}
+        eyebrow={`${snapshot.blockName} · SETTIMANA ${session.week}`}
         title={`Giorno ${session.day} · ${dayNames[session.day]}`}
       />
       <div className="session-summary">
         <span className="tag">
           {count} / {all.length} serie
         </span>
+        <Button asChild variant="ghost" size="icon" title="Modifica blocco">
+          <Link to="/modifica-blocco" aria-label="Modifica blocco">
+            <Pencil />
+          </Link>
+        </Button>
         <span className="save-status">
           <LockKeyhole size={12} />
           {saveError ? "Salvataggio non riuscito" : "Salvato sul dispositivo"}
         </span>
       </div>
-      {block.plan[session.day].map((e, i) => {
+      <PlanNotes {...snapshot.blockNotes} />
+      <PlanNotes {...snapshot.dayNotes} />
+      {block.pendingNotes?.length ? (
+        <p className="notice">
+          {block.pendingNotes.length} indicazioni da verificare nella{" "}
+          <Link to="/modifica-blocco" className="accent-text">
+            scheda
+          </Link>
+          .
+        </p>
+      ) : null}
+      {snapshot.exercises.map((e, i) => {
         const prev = state.sessions
           .filter(
             (s) => s.id !== session.id && s.closedAt && s.blockId === block.id && s.results[e.id],
@@ -103,12 +121,7 @@ function Workout() {
                 </p>
               </div>
             </div>
-            {e.note && (
-              <div className="coach-note">
-                <Info size={14} />
-                {e.note}
-              </div>
-            )}
+            <PlanNotes coach={e.note} personal={e.personalNote ?? ""} />
             <div className="set-row labels">
               <span>Serie</span>
               <span className="text-center">Peso · kg</span>
@@ -154,6 +167,11 @@ function Workout() {
                 >
                   <Check />
                 </Button>
+                {(e.seriesNotes?.[j]?.coach || e.seriesNotes?.[j]?.personal) && (
+                  <div className="set-indication">
+                    <PlanNotes {...e.seriesNotes[j]} />
+                  </div>
+                )}
               </div>
             ))}
             <p className="previous-results">

@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { PageHeading } from "@/components/app-shell";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { useTraining } from "@/components/training-provider";
-import { dayNames, formatDate, reopenSession, volume } from "@/lib/training";
+import { dayNames, formatDate, reopenSession, sessionSnapshot, volume } from "@/lib/training";
+import { PlanNotes } from "@/components/plan-notes";
 export const Route = createFileRoute("/storico")({
   validateSearch: (search: Record<string, unknown>): { sessione?: string | undefined } => ({
     sessione: typeof search["sessione"] === "string" ? search["sessione"] : undefined,
@@ -40,6 +41,7 @@ function TrainingHistory() {
   const [showPlan, setShowPlan] = useState(false);
   const selected = state.sessions.find((s) => s.id === sessione);
   const block = state.blocks.find((b) => b.id === (selected?.blockId ?? blockId));
+  const snapshot = selected && block ? sessionSnapshot(selected, block) : null;
   if (selected && block)
     return (
       <div className="content-narrow">
@@ -48,7 +50,7 @@ function TrainingHistory() {
           Tutto lo storico
         </Link>
         <PageHeading
-          eyebrow={`${block.name} · SETTIMANA ${selected.week}`}
+          eyebrow={`${snapshot?.blockName ?? block.name} · SETTIMANA ${selected.week}`}
           title={`Giorno ${selected.day} · ${dayNames[selected.day]}`}
         />
         <div className="session-summary">
@@ -59,16 +61,21 @@ function TrainingHistory() {
             Volume {volume(selected).toLocaleString("it-IT")} kg
           </span>
         </div>
-        {block.plan[selected.day].map((e) => (
+        <PlanNotes {...snapshot?.blockNotes} />
+        <PlanNotes {...snapshot?.dayNotes} />
+        {(snapshot?.exercises ?? []).map((e) => (
           <section className="workout-exercise" key={e.id}>
             <h3>{e.name}</h3>
             <p className="exercise-target">
               {e.sets} serie × {e.reps} ripetizioni
             </p>
-            {e.note && <p className="coach-note">{e.note}</p>}
+            <PlanNotes coach={e.note} personal={e.personalNote ?? ""} />
             {selected.results[e.id]?.map((s, i) => (
               <div className="result-line" key={i}>
-                <span>Serie {i + 1}</span>
+                <div>
+                  <span>Serie {i + 1}</span>
+                  <PlanNotes {...e.seriesNotes?.[i]} />
+                </div>
                 <strong>
                   {s.weight || "—"} kg × {s.reps || "—"} rip.
                 </strong>
@@ -153,6 +160,17 @@ function TrainingHistory() {
       </div>
       {showPlan && block && (
         <section className="mb-7">
+          <PlanNotes {...block.notes} />
+          {Boolean(block.pendingNotes?.length) && (
+            <div className="pending-section">
+              <h2>Da verificare</h2>
+              {block.pendingNotes?.map((n) => (
+                <p className="coach-indication" key={n.id}>
+                  {n.source} · {n.text}
+                </p>
+              ))}
+            </div>
+          )}
           <div className="day-selector">
             {(["A", "B", "C", "D"] as const).map((d) => (
               <Button
@@ -165,6 +183,7 @@ function TrainingHistory() {
               </Button>
             ))}
           </div>
+          <PlanNotes {...block.dayNotes?.[planDay]} />
           {block.plan[planDay].map((e) => (
             <div className="exercise-preview" key={e.id}>
               <div>
@@ -172,7 +191,15 @@ function TrainingHistory() {
                 <p>
                   {e.sets} serie × {e.reps} ripetizioni
                 </p>
-                {e.note && <p className="mt-2">{e.note}</p>}
+                <PlanNotes coach={e.note} personal={e.personalNote ?? ""} />
+                {e.seriesNotes?.slice(0, e.sets).map((n, i) =>
+                  n.coach || n.personal ? (
+                    <div className="archived-series-note" key={i}>
+                      <span className="tiny text-muted">Serie {i + 1}</span>
+                      <PlanNotes {...n} />
+                    </div>
+                  ) : null,
+                )}
               </div>
             </div>
           ))}

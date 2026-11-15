@@ -1,4 +1,7 @@
 # App allenamenti
+- [x] Note coach e personali a blocco, giornata, esercizio e serie; modifica e riordino della scheda.
+- [x] Lettura PDF locale e conservazione delle indicazioni da verificare senza associazioni inventate (PDF scansionati: inserimento manuale, nessun OCR).
+- [x] Scheda originale nelle sessioni, migrazione dei dati esistenti e verifica storico/backup.
 - [x] Pulizia dei testi superflui e compattazione di tutte le schermate, senza modificare dati o funzioni.
 - [x] Interfaccia italiana e navigazione Allenamento, Storico, Impostazioni.
 - [x] Sessioni locali, autosalvataggio, avanzamento e riapertura coerente.

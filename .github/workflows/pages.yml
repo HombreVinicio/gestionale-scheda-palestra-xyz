@@ -27,7 +27,7 @@ jobs:
           PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}/
       - name: Prepara le pagine per l’apertura diretta
         run: |
-          for route in storico impostazioni sessione nuovo-blocco; do
+          for route in storico impostazioni sessione nuovo-blocco modifica-blocco; do
             mkdir -p "dist-pages/$route"
             cp dist-pages/index.html "dist-pages/$route/index.html"
           done

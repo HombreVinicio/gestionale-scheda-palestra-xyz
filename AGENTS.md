@@ -35,3 +35,6 @@ use the editor.
 - Derive progression from closed sessions by original order; reopening older sessions must not undo later completed workouts.
 - Use separate TanStack routes with shared navigation in the root shell; each screen remains directly navigable.
 - Keep the Lovable Start build unchanged and provide a separate client-only Vite configuration for GitHub Pages; static hosting has no server runtime.
+- Capture an immutable plan snapshot at session start and migrate legacy sessions before editing a block; subsequent edits or deletions must not change recorded history or open sessions.
+- Share the block editor across import review and active-plan editing, persisting drafts locally; apply valid drafts explicitly to avoid exposing unfinished prescriptions.
+- Dynamically load PDF.js and its bundled worker only in upload handlers; retain all unrecognized text as pending notes and never infer ambiguous associations.

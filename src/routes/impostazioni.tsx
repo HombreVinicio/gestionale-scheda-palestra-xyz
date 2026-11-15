@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { Archive, Download, FileUp, Plus, ShieldCheck, Trash2 } from "lucide-react";
+import { Archive, Download, FileUp, Plus, ShieldCheck, Trash2, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeading } from "@/components/app-shell";
 import { ConfirmModal } from "@/components/confirm-modal";
@@ -114,6 +114,14 @@ function Settings() {
             </Link>
           </Button>
           {block && (
+            <Button asChild variant="outline">
+              <Link to="/modifica-blocco">
+                <Pencil />
+                Modifica blocco
+              </Link>
+            </Button>
+          )}
+          {block && (
             <Button
               variant="outline"
               disabled={Boolean(state.currentSessionId)}
@@ -149,7 +157,7 @@ function Settings() {
         </h2>
         <p>Versione 1.0</p>
         <p className="mt-3">
-          L’estrazione dei PDF è dimostrativa. Nessun documento viene letto o caricato online.
+          PDF letti sul dispositivo. I documenti scansionati richiedono inserimento manuale.
         </p>
       </section>
       {action && (

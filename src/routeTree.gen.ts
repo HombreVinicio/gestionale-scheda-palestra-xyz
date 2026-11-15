@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ImpostazioniRouteImport } from './routes/impostazioni'
+import { Route as ModificaBloccoRouteImport } from './routes/modifica-blocco'
 import { Route as NuovoBloccoRouteImport } from './routes/nuovo-blocco'
 import { Route as SessioneRouteImport } from './routes/sessione'
 import { Route as StoricoRouteImport } from './routes/storico'
@@ -23,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
 const ImpostazioniRoute = ImpostazioniRouteImport.update({
   id: '/impostazioni',
   path: '/impostazioni',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModificaBloccoRoute = ModificaBloccoRouteImport.update({
+  id: '/modifica-blocco',
+  path: '/modifica-blocco',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NuovoBloccoRoute = NuovoBloccoRouteImport.update({
@@ -44,6 +50,7 @@ const StoricoRoute = StoricoRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/impostazioni': typeof ImpostazioniRoute
+  '/modifica-blocco': typeof ModificaBloccoRoute
   '/nuovo-blocco': typeof NuovoBloccoRoute
   '/sessione': typeof SessioneRoute
   '/storico': typeof StoricoRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/impostazioni': typeof ImpostazioniRoute
+  '/modifica-blocco': typeof ModificaBloccoRoute
   '/nuovo-blocco': typeof NuovoBloccoRoute
   '/sessione': typeof SessioneRoute
   '/storico': typeof StoricoRoute
@@ -59,19 +67,33 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/impostazioni': typeof ImpostazioniRoute
+  '/modifica-blocco': typeof ModificaBloccoRoute
   '/nuovo-blocco': typeof NuovoBloccoRoute
   '/sessione': typeof SessioneRoute
   '/storico': typeof StoricoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/impostazioni' | '/nuovo-blocco' | '/sessione' | '/storico'
+  fullPaths:
+    | '/'
+    | '/impostazioni'
+    | '/modifica-blocco'
+    | '/nuovo-blocco'
+    | '/sessione'
+    | '/storico'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/impostazioni' | '/nuovo-blocco' | '/sessione' | '/storico'
+  to:
+    | '/'
+    | '/impostazioni'
+    | '/modifica-blocco'
+    | '/nuovo-blocco'
+    | '/sessione'
+    | '/storico'
   id:
     | '__root__'
     | '/'
     | '/impostazioni'
+    | '/modifica-blocco'
     | '/nuovo-blocco'
     | '/sessione'
     | '/storico'
@@ -80,6 +102,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ImpostazioniRoute: typeof ImpostazioniRoute
+  ModificaBloccoRoute: typeof ModificaBloccoRoute
   NuovoBloccoRoute: typeof NuovoBloccoRoute
   SessioneRoute: typeof SessioneRoute
   StoricoRoute: typeof StoricoRoute
@@ -99,6 +122,13 @@ declare module '@tanstack/react-router' {
       path: '/impostazioni'
       fullPath: '/impostazioni'
       preLoaderRoute: typeof ImpostazioniRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/modifica-blocco': {
+      id: '/modifica-blocco'
+      path: '/modifica-blocco'
+      fullPath: '/modifica-blocco'
+      preLoaderRoute: typeof ModificaBloccoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/nuovo-blocco': {
@@ -128,6 +158,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ImpostazioniRoute: ImpostazioniRoute,
+  ModificaBloccoRoute: ModificaBloccoRoute,
   NuovoBloccoRoute: NuovoBloccoRoute,
   SessioneRoute: SessioneRoute,
   StoricoRoute: StoricoRoute,
