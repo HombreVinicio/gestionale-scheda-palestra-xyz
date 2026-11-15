@@ -19,20 +19,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.3"
       - run: bun install --frozen-lockfile
+      - name: Verifica le regole degli allenamenti
+        run: bun run test
       - uses: actions/configure-pages@v5
         id: pages
       - run: bun run build:pages
         env:
           PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}/
-      - name: Prepara le pagine per l’apertura diretta
-        run: |
-          for route in storico impostazioni sessione nuovo-blocco modifica-blocco; do
-            mkdir -p "dist-pages/$route"
-            cp dist-pages/index.html "dist-pages/$route/index.html"
-          done
-          cp dist-pages/index.html dist-pages/404.html
-          touch dist-pages/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist-pages

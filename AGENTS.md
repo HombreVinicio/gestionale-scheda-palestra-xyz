@@ -36,6 +36,7 @@ use the editor.
 - Select the previous workout once by matching block and day among earlier closed sessions, then match each exercise by ID and each set by index; reordering and missing exercises must never substitute unrelated results.
 - Use separate TanStack routes with shared navigation in the root shell; each screen remains directly navigable.
 - Keep the Lovable Start build unchanged and provide a separate client-only Vite configuration for GitHub Pages; static hosting has no server runtime.
+- Generate static route entry files during the dedicated Pages build and override only its root document shell; local output then matches deployment without nesting an SSR document inside the browser mount.
 - Capture an immutable plan snapshot at session start and migrate legacy sessions before editing a block; subsequent edits or deletions must not change recorded history or open sessions.
 - Share the block editor across import review and active-plan editing, persisting drafts locally; apply valid drafts explicitly to avoid exposing unfinished prescriptions.
 - Dynamically load PDF.js and its bundled worker only in upload handlers; retain all unrecognized text as pending notes and never infer ambiguous associations.

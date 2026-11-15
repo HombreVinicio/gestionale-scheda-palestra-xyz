@@ -1,4 +1,7 @@
 # App allenamenti
+- [x] Compilazione statica GitHub Pages e aggiornamento diretto delle schermate sotto repository.
+- [x] Workflow su main, verifica file privati e istruzioni GitHub.
+- [x] Verifica sito statico: PDF locali, salvataggio, riapertura e backup.
 - [x] Confronto per singola serie con l’ultima giornata completata dello stesso blocco, per identità stabile.
 - [x] Verifica riapertura dell’app e backup completo con conferma prima della sostituzione.
 - [x] Note coach e personali a blocco, giornata, esercizio e serie; modifica e riordino della scheda.
