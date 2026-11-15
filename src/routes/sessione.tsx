@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { PageHeading } from "@/components/app-shell";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { useTraining } from "@/components/training-provider";
-import { closeSession, dayNames, previousCompletedSession, sessionSnapshot } from "@/lib/training";
+import { closeSession, previousCompletedSession, sessionSnapshot } from "@/lib/training";
 import { PlanNotes } from "@/components/plan-notes";
 export const Route = createFileRoute("/sessione")({
   head: () => ({
@@ -78,7 +78,7 @@ function Workout() {
       </Link>
       <PageHeading
         eyebrow={`${snapshot.blockName} · SETTIMANA ${session.week}`}
-        title={`Giorno ${session.day}${dayNames[session.day] ? ` · ${dayNames[session.day]}` : ""}`}
+        title={`Giorno ${session.day}`}
       />
       <div className="session-summary">
         <span className="tag">

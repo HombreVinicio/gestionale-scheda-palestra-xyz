@@ -16,7 +16,6 @@ import { useTraining } from "@/components/training-provider";
 import {
   beginSession,
   cursor,
-  dayNames,
   blockDays,
   formatDate,
   volume,
@@ -88,11 +87,7 @@ function TrainingHome() {
               </Link>
             </Button>
           </div>
-          <h1>
-            Giorno {selected}
-            <br />
-            {dayNames[selected] ?? ""}
-          </h1>
+          <h1>Giorno {selected}</h1>
           <div className="hero-description">
             <span>
               <Dumbbell size={14} />
@@ -214,9 +209,7 @@ function TrainingHome() {
                   <Check size={18} />
                 </span>
                 <div>
-                  <h3>
-                    Giorno {latest.day} {dayNames[latest.day] ? `· ${dayNames[latest.day]}` : ""}
-                  </h3>
+                  <h3>Giorno {latest.day}</h3>
                   <p className="tiny text-muted">
                     {formatDate(latest.startedAt)} · Settimana {latest.week}
                   </p>

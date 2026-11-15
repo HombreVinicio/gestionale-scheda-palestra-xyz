@@ -138,12 +138,6 @@ export type Block = z.infer<typeof blockSchema>;
 export type Session = z.infer<typeof sessionSchema>;
 export type TrainingState = z.infer<typeof stateSchema>;
 export const storageKey = "serie-training-v1";
-export const dayNames: Partial<Record<Day, string>> = {
-  A: "Petto e tricipiti",
-  B: "Dorso e bicipiti",
-  C: "Gambe e addome",
-  D: "Spalle e richiami",
-};
 
 export function demoPlan(): Block["plan"] {
   const ex = (id: string, name: string, sets: number, reps: string, muscle: string, note = "") => ({

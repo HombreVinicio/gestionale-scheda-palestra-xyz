@@ -8,7 +8,6 @@ import { useTraining } from "@/components/training-provider";
 import {
   blockDays,
   type Day,
-  dayNames,
   formatDate,
   reopenSession,
   sessionSnapshot,
@@ -59,7 +58,7 @@ function TrainingHistory() {
         </Link>
         <PageHeading
           eyebrow={`${snapshot?.blockName ?? block.name} · SETTIMANA ${selected.week}`}
-          title={`Giorno ${selected.day}${dayNames[selected.day] ? ` · ${dayNames[selected.day]}` : ""}`}
+          title={`Giorno ${selected.day}`}
         />
         <div className="session-summary">
           <span className="tag">{formatDate(selected.startedAt)}</span>
@@ -251,7 +250,7 @@ function TrainingHistory() {
                     <span className="session-icon">{s.day}</span>
                     <div className="details">
                       <h3>
-                        Giorno {s.day} {dayNames[s.day] ? `· ${dayNames[s.day]}` : ""}
+                        Giorno {s.day}
                       </h3>
                       <p>
                         {formatDate(s.startedAt)} ·{" "}
