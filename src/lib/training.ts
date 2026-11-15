@@ -259,6 +259,22 @@ export function reopenSession(state: TrainingState, id: string): TrainingState {
   };
 }
 
+export function previousCompletedSession(
+  state: TrainingState,
+  session: Session,
+): Session | undefined {
+  return state.sessions
+    .filter(
+      (candidate) =>
+        candidate.id !== session.id &&
+        candidate.blockId === session.blockId &&
+        candidate.day === session.day &&
+        candidate.closedAt !== null &&
+        candidate.order < session.order,
+    )
+    .sort((a, b) => b.order - a.order)[0];
+}
+
 export function parseBackup(text: string): TrainingState {
   return migrateState(stateSchema.parse(JSON.parse(text)));
 }

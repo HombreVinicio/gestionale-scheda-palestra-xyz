@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { PageHeading } from "@/components/app-shell";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { useTraining } from "@/components/training-provider";
-import { closeSession, dayNames, sessionSnapshot } from "@/lib/training";
+import { closeSession, dayNames, previousCompletedSession, sessionSnapshot } from "@/lib/training";
 import { PlanNotes } from "@/components/plan-notes";
 export const Route = createFileRoute("/sessione")({
   head: () => ({
@@ -45,6 +45,7 @@ function Workout() {
     );
   const all = Object.values(session.results).flat();
   const snapshot = sessionSnapshot(session, block);
+  const previous = previousCompletedSession(state, session);
   const count = all.filter((s) => s.done).length;
   const change = (
     exerciseId: string,
@@ -105,11 +106,6 @@ function Workout() {
         </p>
       ) : null}
       {snapshot.exercises.map((e, i) => {
-        const prev = state.sessions
-          .filter(
-            (s) => s.id !== session.id && s.closedAt && s.blockId === block.id && s.results[e.id],
-          )
-          .sort((a, b) => b.order - a.order)[0];
         return (
           <section className="workout-exercise" key={e.id}>
             <div className="workout-exercise-title">
@@ -167,6 +163,13 @@ function Workout() {
                 >
                   <Check />
                 </Button>
+                <p className="set-previous">
+                  Serie {j + 1} · Prec.:{" "}
+                  {previous?.results[e.id]?.[j]?.weight || previous?.results[e.id]?.[j]?.reps
+                    ? `${previous.results[e.id]?.[j]?.weight || "—"} kg × ${previous.results[e.id]?.[j]?.reps || "—"}`
+                    : "—"}
+                  {previous?.demo && (previous.results[e.id]?.[j]?.weight || previous.results[e.id]?.[j]?.reps) ? " · esempio" : ""}
+                </p>
                 {(e.seriesNotes?.[j]?.coach || e.seriesNotes?.[j]?.personal) && (
                   <div className="set-indication">
                     <PlanNotes {...e.seriesNotes[j]} />
@@ -174,11 +177,6 @@ function Workout() {
                 )}
               </div>
             ))}
-            <p className="previous-results">
-              {prev
-                ? `Ultima sessione${prev.demo ? " · esempio dimostrativo" : ""}: ${prev.results[e.id]?.map((r, j) => `${j + 1}ª ${r.weight || "—"} kg × ${r.reps || "—"}`).join(" · ")}`
-                : "Nessuna sessione precedente per questo esercizio."}
-            </p>
           </section>
         );
       })}

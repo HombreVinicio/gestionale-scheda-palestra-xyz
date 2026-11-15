@@ -64,7 +64,7 @@ function Settings() {
           </Button>
           <Button variant="outline" onClick={() => fileRef.current?.click()}>
             <FileUp />
-            Ripristina backup
+            Importa backup
           </Button>
         </div>
         <input

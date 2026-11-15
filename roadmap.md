@@ -1,4 +1,6 @@
 # App allenamenti
+- [x] Confronto per singola serie con l’ultima giornata completata dello stesso blocco, per identità stabile.
+- [x] Verifica riapertura dell’app e backup completo con conferma prima della sostituzione.
 - [x] Note coach e personali a blocco, giornata, esercizio e serie; modifica e riordino della scheda.
 - [x] Lettura PDF locale e conservazione delle indicazioni da verificare senza associazioni inventate (PDF scansionati: inserimento manuale, nessun OCR).
 - [x] Scheda originale nelle sessioni, migrazione dei dati esistenti e verifica storico/backup.

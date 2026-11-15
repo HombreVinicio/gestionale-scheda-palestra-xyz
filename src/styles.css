@@ -514,6 +514,13 @@ progress::-moz-progress-bar {
 .set-indication .plan-notes {
   margin: 0 0 4px;
 }
+.set-previous {
+  grid-column: 2 / 4;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
 .editor-notes {
   margin: 12px 0 16px;
 }
