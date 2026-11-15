@@ -1,17 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  Check,
-  ChevronRight,
-  Clock3,
-  Dumbbell,
-  Info,
-  Plus,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, ChevronRight, Dumbbell, Info, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { EmptyBlock, PageHeading } from "@/components/app-shell";
+import { EmptyBlock } from "@/components/app-shell";
 import { useTraining } from "@/components/training-provider";
 import { beginSession, cursor, dayNames, days, formatDate, volume, type Day } from "@/lib/training";
 import trainingImage from "@/assets/training.jpg";
@@ -22,11 +13,13 @@ export const Route = createFileRoute("/")({
       { title: "SERIE · Il tuo allenamento" },
       {
         name: "description",
-        content:
-          "La tua scheda, i tuoi progressi. Registra ogni serie e continua il tuo percorso in palestra.",
+        content: "Scheda attiva e registrazione di peso e ripetizioni per ogni serie.",
       },
       { property: "og:title", content: "SERIE · Il tuo allenamento" },
-      { property: "og:description", content: "Allenamenti e progressi, un giorno alla volta." },
+      {
+        property: "og:description",
+        content: "Scheda attiva, sessioni e risultati degli allenamenti.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -55,13 +48,6 @@ function TrainingHome() {
   };
   return (
     <>
-      <PageHeading eyebrow="IL TUO PERCORSO, UNA SERIE ALLA VOLTA" title="Il prossimo passo è qui.">
-        <Button asChild variant="outline" className="outline-action">
-          <Link to="/nuovo-blocco">
-            <Plus /> Nuovo blocco
-          </Link>
-        </Button>
-      </PageHeading>
       <section className="hero">
         <img
           className="hero-image"
@@ -72,37 +58,37 @@ function TrainingHome() {
         />
         <div className="hero-content">
           <div className="hero-meta">
-            <span className="tag tag-lime">{current ? "IN CORSO" : "PROSSIMO ALLENAMENTO"}</span>
             <span>
               {block.name} · Settimana {current?.week ?? position.week}
             </span>
+            <span className="tag tag-lime">{current ? "IN CORSO" : "ATTIVO"}</span>
+            <Button asChild variant="outline" className="new-block-action">
+              <Link to="/nuovo-blocco">
+                <Plus /> Nuovo blocco
+              </Link>
+            </Button>
           </div>
-          <h2>
+          <h1>
             Giorno {selected}
             <br />
             {dayNames[selected]}
-          </h2>
+          </h1>
           <div className="hero-description">
             <span>
               <Dumbbell size={14} />
               {exercises.length} esercizi · {exercises.reduce((s, e) => s + e.sets, 0)} serie
-            </span>
-            <span>
-              <Clock3 size={14} />
-              circa 55 min
             </span>
           </div>
           <Button className="hero-cta" disabled={!ready} onClick={start}>
             {current ? "Riprendi allenamento" : "Inizia allenamento"}
             <ArrowRight />
           </Button>
-          <p className="hero-footnote">Il tuo ritmo. Nessun giorno fisso.</p>
         </div>
       </section>
       <div className="dashboard-grid">
         <section>
           <div className="section-heading">
-            <h2>La scheda di oggi</h2>
+            <h2>Scheda</h2>
             <span className="tiny text-muted">
               {block.name} <span className="accent-text">/</span> Giorno {selected}
             </span>
@@ -133,14 +119,11 @@ function TrainingHome() {
               <span className="exercise-end tag">{e.muscle}</span>
             </div>
           ))}
-          <p className="tiny text-muted mt-4">
-            Prescrizione del coach · I risultati si registrano durante l’allenamento.
-          </p>
         </section>
         <aside>
           <section className="cycle">
             <div className="section-heading">
-              <h2>Il tuo blocco</h2>
+              <h2>Blocco attivo</h2>
               <span className="tag tag-lime">ATTIVO</span>
             </div>
             <div className="flex justify-between">
@@ -173,9 +156,6 @@ function TrainingHome() {
             </div>
             <div className="flex justify-between tiny text-muted">
               <span>{new Set(completedDays).size} di 4 allenamenti</span>
-              <span>
-                Un passo alla volta <ArrowUpRight size={12} className="inline" />
-              </span>
             </div>
           </section>
           <div className="section-heading">
@@ -221,17 +201,12 @@ function TrainingHome() {
               </div>
             </Link>
           ) : (
-            <p className="text-muted tiny">Il primo allenamento ti aspetta.</p>
+            <p className="text-muted tiny">Nessun allenamento completato.</p>
           )}
           {block.demo && (
             <div className="demo-notice">
               <Info size={14} />
-              <p>
-                Stai provando una scheda dimostrativa.
-                <br />
-                Le sessioni di esempio sono indicate nello storico. I tuoi nuovi risultati restano
-                separati.
-              </p>
+              <p>Scheda dimostrativa · Le sessioni DEMO non sono risultati personali.</p>
             </div>
           )}
         </aside>

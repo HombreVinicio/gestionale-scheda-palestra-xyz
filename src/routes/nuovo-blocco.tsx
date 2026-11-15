@@ -15,7 +15,10 @@ export const Route = createFileRoute("/nuovo-blocco")({
         content: "Controlla la tua scheda e prepara un nuovo blocco di allenamenti.",
       },
       { property: "og:title", content: "Nuovo blocco · SERIE" },
-      { property: "og:description", content: "Prepara il prossimo capitolo del tuo percorso." },
+      {
+        property: "og:description",
+        content: "Controllo della scheda dimostrativa e attivazione di un nuovo blocco.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -50,10 +53,7 @@ function NewBlock() {
       <Link to="/" className="back-link">
         <ArrowLeft size={15} /> Allenamento
       </Link>
-      <PageHeading
-        eyebrow="UN NUOVO CAPITOLO"
-        title={step === 1 ? "Nuovo blocco" : "Controlla la scheda"}
-      />
+      <PageHeading title={step === 1 ? "Nuovo blocco" : "Controlla la scheda"} />
       <div className="steps">
         <span className={step === 1 ? "current" : ""}>01 · Carica PDF</span>
         <ArrowRight size={13} />
@@ -80,8 +80,6 @@ function NewBlock() {
           </div>
           <div className="upload-zone">
             <Upload size={36} />
-            <h2>La scheda del tuo coach</h2>
-            <p>Seleziona un PDF per provare il percorso di controllo.</p>
             <Button onClick={() => fileRef.current?.click()}>
               <Plus />
               Carica PDF del coach

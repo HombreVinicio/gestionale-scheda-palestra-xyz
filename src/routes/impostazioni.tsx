@@ -17,7 +17,7 @@ export const Route = createFileRoute("/impostazioni")({
       { property: "og:title", content: "Impostazioni e backup · SERIE" },
       {
         property: "og:description",
-        content: "I tuoi dati restano tuoi. Esporta un backup e gestisci il tuo percorso.",
+        content: "Gestione dei blocchi ed esportazione o ripristino dei backup locali.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -46,11 +46,11 @@ function Settings() {
   };
   return (
     <div className="content-narrow">
-      <PageHeading eyebrow="IL TUO SPAZIO" title="Impostazioni" />
+      <PageHeading title="Impostazioni" />
       <section className="settings-section">
         <div className="flex items-center gap-3 mb-3 accent-text">
           <ShieldCheck size={24} />
-          <h2 className="text-foreground">I tuoi dati restano tuoi.</h2>
+          <h2 className="text-foreground">Dati e backup</h2>
         </div>
         <p>
           Allenamenti e schede sono salvati solo su questo dispositivo, in questo browser. Non
@@ -100,7 +100,7 @@ function Settings() {
         )}
       </section>
       <section className="settings-section">
-        <h2>Il blocco attivo</h2>
+        <h2>Blocco attivo</h2>
         <p>
           {block
             ? `${block.name}${block.demo ? " · Scheda dimostrativa" : ""}`
@@ -131,7 +131,7 @@ function Settings() {
         )}
       </section>
       <section className="settings-section">
-        <h2>Un nuovo inizio</h2>
+        <h2>Azzera dati</h2>
         <p>
           Rimuovi tutti gli esempi e i risultati. Inizia con una scheda dimostrativa vuota dalla
           settimana 1, giorno A.
@@ -147,7 +147,7 @@ function Settings() {
         <h2>
           SERIE <span className="accent-text">.</span>
         </h2>
-        <p>Versione 1.0 · Il tuo ritmo, una serie alla volta.</p>
+        <p>Versione 1.0</p>
         <p className="mt-3">
           L’estrazione dei PDF è dimostrativa. Nessun documento viene letto o caricato online.
         </p>

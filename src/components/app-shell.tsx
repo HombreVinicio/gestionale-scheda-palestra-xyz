@@ -1,5 +1,5 @@
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { ArrowUpRight, Check, Dumbbell, History, Settings2, X } from "lucide-react";
+import { ArrowUpRight, Dumbbell, History, Settings2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTraining } from "@/components/training-provider";
 
@@ -42,12 +42,6 @@ export function AppShell() {
       <main className="main-content">
         <Outlet />
       </main>
-      <footer className="desktop-footer">
-        <span>SERIE. Un allenamento alla volta.</span>
-        <span>
-          <Check size={14} /> I tuoi dati restano tuoi.
-        </span>
-      </footer>
       <nav className="bottom-nav" aria-label="Navigazione inferiore">
         <Link
           to="/"
@@ -76,14 +70,14 @@ export function PageHeading({
   title,
   children,
 }: {
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
   children?: React.ReactNode;
 }) {
   return (
     <div className="page-heading">
       <div>
-        <p className="eyebrow">{eyebrow}</p>
+        {eyebrow && <p className="eyebrow">{eyebrow}</p>}
         <h1>{title}</h1>
       </div>
       {children}
@@ -94,7 +88,7 @@ export function EmptyBlock() {
   return (
     <div className="empty-state">
       <Dumbbell size={38} />
-      <h2>Pronto per un nuovo inizio?</h2>
+      <h2>Nessun blocco attivo</h2>
       <p>Il tuo ultimo blocco è archiviato.</p>
       <Button asChild size="lg">
         <Link to="/nuovo-blocco">

@@ -18,7 +18,10 @@ export const Route = createFileRoute("/storico")({
         content: "Consulta blocchi, settimane e risultati di ogni allenamento.",
       },
       { property: "og:title", content: "Storico e progressi · SERIE" },
-      { property: "og:description", content: "Il tuo percorso in palestra, serie dopo serie." },
+      {
+        property: "og:description",
+        content: "Blocchi, settimane e risultati delle sessioni completate.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -59,9 +62,8 @@ function TrainingHistory() {
         {block.plan[selected.day].map((e) => (
           <section className="workout-exercise" key={e.id}>
             <h3>{e.name}</h3>
-            <p className="prescription mt-3">
-              <span className="tag tag-lime">COACH</span>
-              {e.sets} × {e.reps} ripetizioni
+            <p className="exercise-target">
+              {e.sets} serie × {e.reps} ripetizioni
             </p>
             {e.note && <p className="coach-note">{e.note}</p>}
             {selected.results[e.id]?.map((s, i) => (
@@ -115,7 +117,7 @@ function TrainingHistory() {
   const weeks = [...new Set(sessions.map((s) => s.week))].sort((a, b) => b - a);
   return (
     <div className="content-narrow">
-      <PageHeading eyebrow="IL TUO PERCORSO" title="Ogni serie conta." />
+      <PageHeading title="Storico" />
       <div className="history-filters">
         <select
           aria-label="Blocco nello storico"
@@ -179,8 +181,7 @@ function TrainingHistory() {
       {sessions.length === 0 ? (
         <div className="empty-state">
           <History size={36} />
-          <h2>Il tuo percorso inizia qui.</h2>
-          <p>Gli allenamenti completati appariranno nello storico.</p>
+          <h2>Nessun allenamento completato</h2>
         </div>
       ) : (
         weeks

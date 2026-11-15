@@ -17,7 +17,7 @@ export const Route = createFileRoute("/sessione")({
       { property: "og:title", content: "Allenamento in corso · SERIE" },
       {
         property: "og:description",
-        content: "Ogni serie conta. Segui la tua scheda e salva i tuoi risultati.",
+        content: "Serie previste, risultati precedenti e registrazione di peso e ripetizioni.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -37,7 +37,6 @@ function Workout() {
       <div className="empty-state">
         <CheckCheck size={40} />
         <h2>Nessun allenamento in corso</h2>
-        <p>La tua scheda ti aspetta.</p>
         <Button asChild>
           <Link to="/">Vai all’allenamento</Link>
         </Button>
@@ -97,13 +96,12 @@ function Workout() {
           <section className="workout-exercise" key={e.id}>
             <div className="workout-exercise-title">
               <span className="exercise-number">{String(i + 1).padStart(2, "0")}</span>
-              <h3>{e.name}</h3>
-            </div>
-            <div className="prescription">
-              <span className="tag tag-lime">COACH</span>
-              <strong>
-                {e.sets} serie × {e.reps} ripetizioni
-              </strong>
+              <div>
+                <h3>{e.name}</h3>
+                <p className="exercise-target">
+                  {e.sets} serie × {e.reps} ripetizioni
+                </p>
+              </div>
             </div>
             {e.note && (
               <div className="coach-note">
