@@ -1,4 +1,5 @@
 # App allenamenti
+- [x] Homepage compatta: Nuovo blocco in alto, avanzamento prima della scheda e giornate consultabili durante una sessione; verifica telefono e desktop.
 - [x] Giorni e azioni dell’importazione sempre visibili; ripetizioni per serie e testi più leggibili sul telefono, verificati con scorrimento e riapertura.
 - [x] Importare soltanto righe delle tabelle, ignorando tutto il testo esterno.
 - [x] Numero di giornate modificabile, riduzione con scelta e conferma, conservazione storico e confronti.

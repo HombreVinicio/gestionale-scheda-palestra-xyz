@@ -1,5 +1,5 @@
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { ArrowUpRight, Dumbbell, History, Settings2, X } from "lucide-react";
+import { ArrowUpRight, Dumbbell, History, Plus, Settings2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTraining } from "@/components/training-provider";
 
@@ -26,10 +26,9 @@ export function AppShell() {
             Impostazioni
           </Link>
         </nav>
-        <div className="device-status">
-          <span className="status-dot" /> Solo sul tuo dispositivo{" "}
-          <span className="profile-mark">TU</span>
-        </div>
+        <Button asChild variant="outline" className="header-new-block">
+          <Link to="/nuovo-blocco"><Plus />Nuovo blocco</Link>
+        </Button>
       </header>
       {saveError && (
         <div className="error-banner" role="alert">

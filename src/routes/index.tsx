@@ -7,7 +7,6 @@ import {
   ChevronRight,
   Dumbbell,
   Info,
-  Plus,
   Pencil,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -53,8 +52,11 @@ function TrainingHome() {
   const position = cursor(state, block.id);
   const order = blockDays(block);
   const selected =
-    current?.day ?? (chosenDay && order.includes(chosenDay) ? chosenDay : position.day);
-  const exercises = current?.snapshot?.exercises ?? block.plan[selected] ?? [];
+    chosenDay && order.includes(chosenDay) ? chosenDay : (current?.day ?? position.day);
+  const exercises = current?.day === selected
+    ? (current.snapshot?.exercises ?? block.plan[selected] ?? [])
+    : (block.plan[selected] ?? []);
+  const workoutDay = current?.day ?? position.day;
   const latest = state.sessions
     .filter((s) => s.blockId === block.id && s.closedAt)
     .sort((a, b) => b.order - a.order)[0];
@@ -67,7 +69,7 @@ function TrainingHome() {
   };
   return (
     <>
-      <section className="hero">
+      <section className="hero home-workout">
         <img
           className="hero-image"
           src={trainingImage}
@@ -81,13 +83,8 @@ function TrainingHome() {
               {block.name} · Settimana {current?.week ?? position.week}
             </span>
             <span className="tag tag-lime">{current ? "IN CORSO" : "ATTIVO"}</span>
-            <Button asChild variant="outline" className="new-block-action">
-              <Link to="/nuovo-blocco">
-                <Plus /> Nuovo blocco
-              </Link>
-            </Button>
           </div>
-          <h1>Giorno {selected}</h1>
+          <h1>Giorno {current?.day ?? selected}</h1>
           <div className="hero-description">
             <span>
               <Dumbbell size={14} />
@@ -98,6 +95,16 @@ function TrainingHome() {
             {current ? "Riprendi allenamento" : "Inizia allenamento"}
             <ArrowRight />
           </Button>
+        </div>
+      </section>
+      <section className="home-progress" aria-label="Blocco attivo">
+        <div className="home-progress-heading">
+          <div><h2>Blocco attivo</h2><span>{block.name}</span></div>
+          <strong>Settimana {current?.week ?? position.week} · Giorno {workoutDay}</strong>
+        </div>
+        <div className="home-progress-footer">
+          <span>{new Set(completedDays).size} / {order.length} allenamenti completati</span>
+          <progress value={new Set(completedDays).size} max={order.length} aria-label="Giornate completate nella settimana" />
         </div>
       </section>
       <div className="dashboard-grid">
@@ -134,7 +141,7 @@ function TrainingHome() {
                 key={d}
                 variant="ghost"
                 className={d === selected ? "selected" : ""}
-                disabled={Boolean(current) && d !== selected}
+                aria-pressed={d === selected}
                 onClick={() => setChosenDay(d)}
               >
                 Giorno {d}
@@ -156,45 +163,6 @@ function TrainingHome() {
           ))}
         </section>
         <aside>
-          <section className="cycle">
-            <div className="section-heading">
-              <h2>Blocco attivo</h2>
-              <span className="tag tag-lime">ATTIVO</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="tiny text-muted">{block.name}</span>
-              <span className="tiny">Settimana {position.week}</span>
-            </div>
-            <div className="cycle-days">
-              {order.map((d) => (
-                <div
-                  className={`cycle-item ${completedDays.includes(d) ? "done" : d === position.day ? "next" : ""}`}
-                  key={d}
-                >
-                  <span>{completedDays.includes(d) ? <Check size={15} /> : d}</span>
-                  <p>
-                    {completedDays.includes(d)
-                      ? "Completato"
-                      : d === position.day
-                        ? "Il prossimo"
-                        : "Da fare"}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <div className="progress-track">
-              <progress
-                value={new Set(completedDays).size}
-                max={order.length}
-                aria-label="Giornate completate nella settimana"
-              />
-            </div>
-            <div className="flex justify-between tiny text-muted">
-              <span>
-                {new Set(completedDays).size} di {order.length} allenamenti
-              </span>
-            </div>
-          </section>
           <div className="section-heading">
             <h2>Ultimo allenamento</h2>
             <Link to="/storico" className="tiny accent-text">

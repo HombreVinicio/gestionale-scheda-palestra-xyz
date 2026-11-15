@@ -287,6 +287,67 @@ h3 {
   height: 36px;
   font-size: 11px;
 }
+.header-new-block {
+  min-height: 44px;
+  flex-shrink: 0;
+  font-size: 14px;
+}
+.home-workout .hero-content {
+  padding: 16px 20px;
+}
+.home-workout .hero-meta {
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.home-workout h1 {
+  font-size: 26px;
+  margin-bottom: 4px;
+}
+.home-workout .hero-description {
+  margin-bottom: 12px;
+}
+.home-workout {
+  margin-bottom: 14px;
+}
+.home-progress {
+  padding-block: 4px 14px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.home-progress-heading, .home-progress-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+.home-progress-heading > div {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.home-progress h2 {
+  font-size: 15px;
+}
+.home-progress-heading span, .home-progress-footer span {
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+.home-progress-heading strong {
+  font-size: 15px;
+  color: var(--primary);
+}
+.home-progress-footer {
+  margin-top: 8px;
+}
+.home-progress progress {
+  height: 4px;
+  width: 130px;
+  appearance: none;
+  border: 0;
+  background: var(--secondary);
+}
 .dashboard-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
