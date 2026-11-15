@@ -1,0 +1,40 @@
+name: Pubblica SERIE su GitHub Pages
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - uses: actions/configure-pages@v5
+        id: pages
+      - run: bun run build:pages
+        env:
+          PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}/
+      - name: Prepara le pagine per l’apertura diretta
+        run: |
+          for route in storico impostazioni sessione nuovo-blocco; do
+            mkdir -p "dist-pages/$route"
+            cp dist-pages/index.html "dist-pages/$route/index.html"
+          done
+          cp dist-pages/index.html dist-pages/404.html
+          touch dist-pages/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist-pages
+      - uses: actions/deploy-pages@v4
+        id: deployment

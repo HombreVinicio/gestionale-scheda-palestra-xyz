@@ -10,33 +10,79 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ImpostazioniRouteImport } from './routes/impostazioni'
+import { Route as NuovoBloccoRouteImport } from './routes/nuovo-blocco'
+import { Route as SessioneRouteImport } from './routes/sessione'
+import { Route as StoricoRouteImport } from './routes/storico'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ImpostazioniRoute = ImpostazioniRouteImport.update({
+  id: '/impostazioni',
+  path: '/impostazioni',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NuovoBloccoRoute = NuovoBloccoRouteImport.update({
+  id: '/nuovo-blocco',
+  path: '/nuovo-blocco',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SessioneRoute = SessioneRouteImport.update({
+  id: '/sessione',
+  path: '/sessione',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoricoRoute = StoricoRouteImport.update({
+  id: '/storico',
+  path: '/storico',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/impostazioni': typeof ImpostazioniRoute
+  '/nuovo-blocco': typeof NuovoBloccoRoute
+  '/sessione': typeof SessioneRoute
+  '/storico': typeof StoricoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/impostazioni': typeof ImpostazioniRoute
+  '/nuovo-blocco': typeof NuovoBloccoRoute
+  '/sessione': typeof SessioneRoute
+  '/storico': typeof StoricoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/impostazioni': typeof ImpostazioniRoute
+  '/nuovo-blocco': typeof NuovoBloccoRoute
+  '/sessione': typeof SessioneRoute
+  '/storico': typeof StoricoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/impostazioni' | '/nuovo-blocco' | '/sessione' | '/storico'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/impostazioni' | '/nuovo-blocco' | '/sessione' | '/storico'
+  id:
+    | '__root__'
+    | '/'
+    | '/impostazioni'
+    | '/nuovo-blocco'
+    | '/sessione'
+    | '/storico'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ImpostazioniRoute: typeof ImpostazioniRoute
+  NuovoBloccoRoute: typeof NuovoBloccoRoute
+  SessioneRoute: typeof SessioneRoute
+  StoricoRoute: typeof StoricoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +94,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/impostazioni': {
+      id: '/impostazioni'
+      path: '/impostazioni'
+      fullPath: '/impostazioni'
+      preLoaderRoute: typeof ImpostazioniRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nuovo-blocco': {
+      id: '/nuovo-blocco'
+      path: '/nuovo-blocco'
+      fullPath: '/nuovo-blocco'
+      preLoaderRoute: typeof NuovoBloccoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sessione': {
+      id: '/sessione'
+      path: '/sessione'
+      fullPath: '/sessione'
+      preLoaderRoute: typeof SessioneRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/storico': {
+      id: '/storico'
+      path: '/storico'
+      fullPath: '/storico'
+      preLoaderRoute: typeof StoricoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ImpostazioniRoute: ImpostazioniRoute,
+  NuovoBloccoRoute: NuovoBloccoRoute,
+  SessioneRoute: SessioneRoute,
+  StoricoRoute: StoricoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

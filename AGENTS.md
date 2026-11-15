@@ -28,3 +28,10 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Application architecture
+- Keep workout state and backup validation in the browser-safe training module; pure transitions make progression and idempotence testable.
+- Persist changes synchronously through the shared training provider, restoring only after hydration; this prevents lost input and SSR mismatches.
+- Derive progression from closed sessions by original order; reopening older sessions must not undo later completed workouts.
+- Use separate TanStack routes with shared navigation in the root shell; each screen remains directly navigable.
+- Keep the Lovable Start build unchanged and provide a separate client-only Vite configuration for GitHub Pages; static hosting has no server runtime.
