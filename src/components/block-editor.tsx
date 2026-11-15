@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import {
   assignPendingNote,
   days,
-  dayNames,
   emptyNotes,
   reorderExercise,
   type Block,
@@ -173,6 +172,28 @@ export function BlockEditor({
           onChange={(notes) => onChange({ ...block, notes })}
         />
       </details>
+      <details className="editor-notes" open={Boolean(block.accessories?.length)}>
+        <summary>Attività accessorie · senza giornata assegnata</summary>
+        {block.accessories?.map((a) => (
+          <label key={a.id}>
+            <span className="field-label">{a.source}</span>
+            <textarea
+              className="field-input"
+              rows={3}
+              aria-label={`Attività accessoria ${a.source}`}
+              value={a.text}
+              onChange={(event) =>
+                onChange({
+                  ...block,
+                  accessories: block.accessories?.map((x) =>
+                    x.id === a.id ? { ...x, text: event.target.value } : x,
+                  ),
+                })
+              }
+            />
+          </label>
+        ))}
+      </details>
       {Boolean(block.pendingNotes?.length) && (
         <section className="pending-section">
           <h2>Da verificare · {block.pendingNotes?.length}</h2>
@@ -194,7 +215,7 @@ export function BlockEditor({
         ))}
       </div>
       <div className="section-heading">
-        <h2>{dayNames[day]}</h2>
+        <h2>Giorno {day}</h2>
         <span className="tiny text-muted">{block.plan[day].length} esercizi</span>
       </div>
       <details className="editor-notes">
@@ -291,6 +312,21 @@ export function BlockEditor({
               </Button>
             </div>
           </div>
+          {e.reviewIssues?.length ? (
+            <div>
+              <p className="error-message">{e.reviewIssues.join(" · ")}</p>
+              <Button variant="outline" onClick={() => edit(e.id, { reviewIssues: [] })}>
+                Conferma verifica
+              </Button>
+            </div>
+          ) : null}
+          {e.importSource && (
+            <details className="editor-notes">
+              <summary>Testo originale</summary>
+              <p className="text-muted tiny">{e.importSource}</p>
+            </details>
+          )}
+          {!e.reps.trim() && <p className="error-message">Ripetizioni mancanti</p>}
           <div className="edit-grid">
             <label>
               <span className="field-label">Esercizio</span>
@@ -320,7 +356,15 @@ export function BlockEditor({
                 aria-label={`${e.name}, ripetizioni previste`}
                 className="field-input"
                 value={e.reps}
-                onChange={(event) => edit(e.id, { reps: event.target.value })}
+                onChange={(event) =>
+                  edit(e.id, {
+                    reps: event.target.value,
+                    seriesTargets: e.seriesTargets?.map((t) => ({
+                      ...t,
+                      reps: event.target.value,
+                    })),
+                  })
+                }
               />
             </label>
           </div>
@@ -334,6 +378,45 @@ export function BlockEditor({
             {Array.from({ length: Math.min(12, Math.max(0, e.sets)) }, (_, j) => (
               <div className="series-note-editor" key={j}>
                 <h3>Serie {j + 1}</h3>
+                {e.seriesTargets && (
+                  <div className="note-fields">
+                    <label>
+                      <span className="field-label">Ruolo</span>
+                      <input
+                        className="field-input"
+                        aria-label={`${e.name}, serie ${j + 1}, ruolo`}
+                        value={e.seriesTargets[j]?.role ?? ""}
+                        onChange={(event) => {
+                          const targets = Array.from(
+                            { length: e.sets },
+                            (_, k) => e.seriesTargets?.[k] ?? { role: "", reps: e.reps },
+                          );
+                          targets[j] = { reps: targets[j]?.reps ?? "", role: event.target.value };
+                          edit(e.id, { seriesTargets: targets });
+                        }}
+                      />
+                    </label>
+                    <label>
+                      <span className="field-label">Ripetizioni previste</span>
+                      <input
+                        className="field-input"
+                        aria-label={`${e.name}, serie ${j + 1}, ripetizioni previste`}
+                        value={e.seriesTargets[j]?.reps ?? ""}
+                        onChange={(event) => {
+                          const targets = Array.from(
+                            { length: e.sets },
+                            (_, k) => e.seriesTargets?.[k] ?? { role: "", reps: e.reps },
+                          );
+                          targets[j] = { role: targets[j]?.role ?? "", reps: event.target.value };
+                          edit(e.id, {
+                            seriesTargets: targets,
+                            reps: targets.map((t) => t.reps).join(" + "),
+                          });
+                        }}
+                      />
+                    </label>
+                  </div>
+                )}
                 <NoteFields
                   label={`${e.name}, serie ${j + 1}`}
                   value={e.seriesNotes?.[j] ?? emptyNotes()}

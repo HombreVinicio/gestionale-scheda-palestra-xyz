@@ -1,4 +1,7 @@
 # App allenamenti
+- [x] Comando esplicito Elimina bozza nell’importazione del nuovo blocco, con conferma.
+- [x] Importazione PDF riutilizzabile con celle, prescrizioni per serie, accessori e revisione dei dubbi.
+- [x] Verifica PDF reale e documenti diversi, incluse tabelle su più pagine, backup e riapertura.
 - [x] Compilazione statica GitHub Pages e aggiornamento diretto delle schermate sotto repository.
 - [x] Workflow su main, verifica file privati e istruzioni GitHub.
 - [x] Verifica sito statico: PDF locali, salvataggio, riapertura e backup.

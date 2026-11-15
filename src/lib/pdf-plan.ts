@@ -1,4 +1,5 @@
 import { days, emptyNotes, type Block, type Day, type Exercise } from "@/lib/training";
+import { planFromPages, type PdfPage, type PdfRect } from "@/lib/pdf-tables";
 
 export type PdfLine = { text: string; page: number };
 // Only explicit day headings, complete exercise prescriptions and explicit series indices
@@ -78,34 +79,50 @@ export async function readPdf(file: File, name: string): Promise<{ block: Block;
   });
   const document = await task.promise;
   try {
-    const lines: PdfLine[] = [];
+    const pages: PdfPage[] = [];
+    let textCount = 0;
     for (let number = 1; number <= document.numPages; number++) {
       const page = await document.getPage(number);
       const content = await page.getTextContent();
-      let text = "";
-      let y: number | null = null;
-      for (const item of content.items) {
-        if (!("str" in item)) continue;
-        const currentY = item.transform[5] ?? 0;
-        if (y !== null && Math.abs(currentY - y) > 3 && text.trim()) {
-          lines.push({ text: text.trim(), page: number });
-          text = "";
-        }
-        text += `${item.str} `;
-        y = currentY;
-        if (item.hasEOL) {
-          if (text.trim()) lines.push({ text: text.trim(), page: number });
-          text = "";
-          y = null;
-        }
-      }
-      if (text.trim()) lines.push({ text: text.trim(), page: number });
+      const viewport = page.getViewport({ scale: 1 });
+      const ops = await page.getOperatorList();
+      const rects: PdfRect[] = [];
+      ops.fnArray.forEach((op, i) => {
+        if (op !== pdfjs.OPS.constructPath) return;
+        const bounds = ops.argsArray[i]?.[2];
+        if (bounds?.length === 4)
+          rects.push({ left: bounds[0], bottom: bounds[1], right: bounds[2], top: bounds[3] });
+      });
+      const items = content.items.flatMap((item) =>
+        "str" in item && item.str.trim()
+          ? [
+              {
+                text: item.str,
+                x: item.transform[4] ?? 0,
+                y: item.transform[5] ?? 0,
+                width: item.width,
+                height: item.height,
+              },
+            ]
+          : [],
+      );
+      textCount += items.length;
+      pages.push({ page: number, width: viewport.width, height: viewport.height, items, rects });
     }
-    if (!lines.length)
+    if (!textCount)
       throw new Error(
         "Il PDF non contiene testo leggibile. Per un PDF scansionato inserisci manualmente esercizi e note; il riconoscimento delle immagini non è disponibile.",
       );
-    return { block: planFromLines(lines, name), pages: document.numPages };
+    const block = planFromPages(pages, name);
+    const scanned = pages.filter((p) => !p.items.length);
+    scanned.forEach((p) =>
+      block.pendingNotes?.push({
+        id: crypto.randomUUID(),
+        text: "Pagina senza testo estraibile: verifica il PDF e inserisci manualmente eventuali dati. OCR non disponibile.",
+        source: `Pagina ${p.page}`,
+      }),
+    );
+    return { block, pages: document.numPages };
   } finally {
     await task.destroy();
   }

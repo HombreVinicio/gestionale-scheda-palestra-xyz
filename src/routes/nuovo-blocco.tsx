@@ -1,12 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { ArrowLeft, Check, Plus, Upload } from "lucide-react";
+import { ArrowLeft, Check, Plus, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeading } from "@/components/app-shell";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { BlockEditor, validBlock } from "@/components/block-editor";
 import { useTraining } from "@/components/training-provider";
-import { demoPlan, migrateState, type Block } from "@/lib/training";
+import { demoPlan, discardNewDraft, migrateState, type Block } from "@/lib/training";
 import { readPdf } from "@/lib/pdf-plan";
 export const Route = createFileRoute("/nuovo-blocco")({
   head: () => ({
@@ -31,6 +31,7 @@ function NewBlock() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [confirm, setConfirm] = useState(false);
+  const [deleteDraft, setDeleteDraft] = useState(false);
   const draft = state.editorDraft?.mode === "new" ? state.editorDraft : null;
   const name = `Blocco ${state.blocks.length + 1}`;
   const setDraft = (block: Block, source: string, imported: boolean) =>
@@ -78,18 +79,9 @@ function NewBlock() {
             </p>
           )}
           <div className="sticky-action">
-            <Button
-              variant="ghost"
-              onClick={() => {
-                if (window.confirm("Scartare questa bozza?"))
-                  update((s) => {
-                    const { editorDraft: _draft, ...rest } = s;
-                    return rest;
-                  });
-              }}
-            >
-              <ArrowLeft />
-              Indietro
+            <Button variant="ghost" onClick={() => setDeleteDraft(true)}>
+              <Trash2 />
+              Elimina bozza
             </Button>
             <Button
               disabled={!validBlock(draft.block) || Boolean(state.currentSessionId)}
@@ -215,6 +207,18 @@ function NewBlock() {
               };
             });
             void navigate({ to: "/" });
+          }}
+        />
+      )}
+      {deleteDraft && draft && (
+        <ConfirmModal
+          title="Eliminare la bozza?"
+          description="La scheda importata e le modifiche della bozza saranno eliminate. Il blocco attivo e lo storico non cambiano."
+          confirm="Elimina bozza"
+          onCancel={() => setDeleteDraft(false)}
+          onConfirm={() => {
+            update(discardNewDraft);
+            setDeleteDraft(false);
           }}
         />
       )}

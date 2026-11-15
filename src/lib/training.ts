@@ -10,11 +10,14 @@ const exerciseSchema = z.object({
   id: z.string(),
   name: z.string().min(1),
   sets: z.number().int().min(1).max(12),
-  reps: z.string().min(1),
+  reps: z.string(),
   note: z.string(),
   muscle: z.string(),
   personalNote: z.string().optional(),
   seriesNotes: z.array(notesSchema).optional(),
+  seriesTargets: z.array(z.object({ role: z.string(), reps: z.string() })).optional(),
+  importSource: z.string().optional(),
+  reviewIssues: z.array(z.string()).optional(),
 });
 const blockSchema = z.object({
   id: z.string(),
@@ -24,6 +27,7 @@ const blockSchema = z.object({
   notes: notesSchema.optional(),
   dayNotes: z.object({ A: notesSchema, B: notesSchema, C: notesSchema, D: notesSchema }).optional(),
   pendingNotes: z.array(pendingNoteSchema).optional(),
+  accessories: z.array(pendingNoteSchema).optional(),
   plan: z.object({
     A: z.array(exerciseSchema),
     B: z.array(exerciseSchema),
@@ -308,6 +312,11 @@ export function saveBlock(state: TrainingState, block: Block): TrainingState {
     ...rest,
     blocks: migrated.blocks.map((b) => (b.id === block.id ? structuredClone(block) : b)),
   };
+}
+export function discardNewDraft(state: TrainingState): TrainingState {
+  if (state.editorDraft?.mode !== "new") return state;
+  const { editorDraft: _draft, ...rest } = state;
+  return rest;
 }
 export function reorderExercise(
   plan: Block["plan"],

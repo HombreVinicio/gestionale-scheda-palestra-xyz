@@ -74,6 +74,11 @@ function TrainingHistory() {
               <div className="result-line" key={i}>
                 <div>
                   <span>Serie {i + 1}</span>
+                  {e.seriesTargets?.[i] && (
+                    <p className="exercise-target">
+                      {e.seriesTargets[i].role} · {e.seriesTargets[i].reps || "—"} rip.
+                    </p>
+                  )}
                   <PlanNotes {...e.seriesNotes?.[i]} />
                 </div>
                 <strong>
@@ -161,6 +166,16 @@ function TrainingHistory() {
       {showPlan && block && (
         <section className="mb-7">
           <PlanNotes {...block.notes} />
+          {block.accessories?.length ? (
+            <details className="editor-notes">
+              <summary>Attività accessorie</summary>
+              {block.accessories.map((a) => (
+                <p className="coach-indication" key={a.id}>
+                  {a.text}
+                </p>
+              ))}
+            </details>
+          ) : null}
           {Boolean(block.pendingNotes?.length) && (
             <div className="pending-section">
               <h2>Da verificare</h2>

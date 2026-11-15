@@ -164,11 +164,19 @@ function Workout() {
                   <Check />
                 </Button>
                 <p className="set-previous">
+                  {e.seriesTargets?.[j] && (
+                    <span>
+                      {e.seriesTargets[j].role} · {e.seriesTargets[j].reps || "—"} rip. ·{" "}
+                    </span>
+                  )}
                   Serie {j + 1} · Prec.:{" "}
                   {previous?.results[e.id]?.[j]?.weight || previous?.results[e.id]?.[j]?.reps
                     ? `${previous.results[e.id]?.[j]?.weight || "—"} kg × ${previous.results[e.id]?.[j]?.reps || "—"}`
                     : "—"}
-                  {previous?.demo && (previous.results[e.id]?.[j]?.weight || previous.results[e.id]?.[j]?.reps) ? " · esempio" : ""}
+                  {previous?.demo &&
+                  (previous.results[e.id]?.[j]?.weight || previous.results[e.id]?.[j]?.reps)
+                    ? " · esempio"
+                    : ""}
                 </p>
                 {(e.seriesNotes?.[j]?.coach || e.seriesNotes?.[j]?.personal) && (
                   <div className="set-indication">

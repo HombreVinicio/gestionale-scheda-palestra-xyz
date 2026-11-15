@@ -107,6 +107,16 @@ function TrainingHome() {
             </Button>
           </div>
           <PlanNotes {...block.notes} />
+          {block.accessories?.length ? (
+            <details className="editor-notes">
+              <summary>Attività accessorie</summary>
+              {block.accessories.map((a) => (
+                <p className="coach-indication" key={a.id}>
+                  {a.text}
+                </p>
+              ))}
+            </details>
+          ) : null}
           <PlanNotes {...block.dayNotes?.[selected]} />
           {Boolean(block.pendingNotes?.length) && (
             <p className="notice">
