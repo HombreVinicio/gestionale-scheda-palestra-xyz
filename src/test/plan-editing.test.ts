@@ -110,39 +110,20 @@ describe("Schede e indicazioni", () => {
       "Recupero",
     );
   });
-  it("importa le serie esplicite e conserva note a fondo pagina senza associarle", () => {
+  it("non importa righe senza geometria di tabella né indicazioni esterne", () => {
     const b = planFromLines(
       [
         { page: 1, text: "Giorno A" },
         { page: 1, text: "Panca piana 2 x 8–10" },
         { page: 1, text: "Serie 1: Buffer 1" },
-        { page: 1, text: "Serie 2: Buffer 0" },
         { page: 1, text: "Addome: 3 esercizi a fine seduta" },
-      ],
-      "Blocco PDF",
-    );
-    expect(b.plan.A[0]?.seriesNotes?.[0]?.coach).toBe("Buffer 1");
-    expect(b.plan.A[0]?.seriesNotes?.[1]?.coach).toBe("Buffer 0");
-    expect(b.pendingNotes?.[0]?.text).toBe("Addome: 3 esercizi a fine seduta");
-    expect(b.dayNotes).toBeUndefined();
-  });
-  it("non associa serie ambigue dopo una riga sconosciuta o un cambio pagina", () => {
-    const b = planFromLines(
-      [
-        { page: 1, text: "Giorno A" },
-        { page: 1, text: "Panca 2 x 8" },
-        { page: 1, text: "Altro esercizio non riconosciuto" },
-        { page: 1, text: "Serie 1: buffer 0" },
-        { page: 2, text: "Serie 2: buffer 1" },
       ],
       "PDF",
     );
-    expect(b.plan.A[0]?.seriesNotes).toEqual([]);
-    expect(b.pendingNotes?.map((n) => n.text)).toEqual([
-      "Altro esercizio non riconosciuto",
-      "Serie 1: buffer 0",
-      "Serie 2: buffer 1",
-    ]);
+    expect(b.plan.A).toEqual([]);
+    expect(b.pendingNotes).toEqual([]);
+    expect(b.accessories).toEqual([]);
+    expect(b.notes?.coach).toBe("");
   });
   it.each(["block", "day", "exercise", "series"] as const)(
     "associa manualmente una nota a %s",

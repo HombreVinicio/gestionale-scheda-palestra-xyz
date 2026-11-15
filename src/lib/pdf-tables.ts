@@ -170,8 +170,7 @@ export function planFromPages(pages: PdfPage[], name: string): Block {
   };
   let day: Day | null = null;
   let previousColumns: Column[] = [];
-  let section: "pending" | "general" | "accessory" = "pending";
-  let accessory: { id: string; text: string; source: string } | null = null;
+  const discovered: Day[] = [];
   const pending = (text: string, source: string) =>
     block.pendingNotes?.push({ id: crypto.randomUUID(), text, source });
   for (const page of pages) {
@@ -189,7 +188,7 @@ export function planFromPages(pages: PdfPage[], name: string): Block {
       l.text = textOf(l.items).replace(/\n/g, " ");
     }
     const headings = lineItems.filter((l) =>
-      /^(?:giorno|giornata|day|allenamento)\s*([ABCD1-4])\s*[:.–-]?(?:\s+.*)?$/i.test(l.text),
+      /^(?:giorno|giornata|day|allenamento)\s*([A-Z]|\d{1,2})\s*[:.–-]?(?:\s+.*)?$/i.test(l.text),
     );
     const tables: { top: number; bottom: number; columns: Column[]; headerItems: PdfText[] }[] = [];
     const headerCells = cells.filter((c) => header(c.text) === "name");
@@ -261,9 +260,11 @@ export function planFromPages(pages: PdfPage[], name: string): Block {
     for (const table of tables.sort((a, b) => b.top - a.top)) {
       const h = headings.filter((h) => h.y >= table.top - 2).at(-1);
       if (h) {
-        const match = /([ABCD1-4])\s*[:.–-]?(?:\s+.*)?$/i.exec(h.text);
+        const match = /^(?:giorno|giornata|day|allenamento)\s*([A-Z]|\d{1,2})\b/i.exec(h.text);
         const label = match?.[1]?.toUpperCase();
         day = days.find((d, i) => d === label || String(i + 1) === label) ?? null;
+        if (day && !discovered.includes(day)) discovered.push(day);
+        if (day && !block.plan[day]) block.plan[day] = [];
         h.items.forEach((i) => used.add(i));
       }
       table.headerItems.forEach((i) => used.add(i));
@@ -329,62 +330,19 @@ export function planFromPages(pages: PdfPage[], name: string): Block {
           table.columns.some((c) => !c.role && items.some((i) => i.x >= c.left && i.x < c.right))
         )
           ex.reviewIssues?.push("Colonna non riconosciuta: verifica il testo originale");
-        if (ex && day) block.plan[day].push(ex);
+        if (ex && day) block.plan[day]?.push(ex);
         else if (original) pending(original, `${source} · riga da verificare`);
         items.forEach((i) => used.add(i));
       }
     }
-    for (const l of lineItems) {
-      const remaining = l.items.filter((i) => !used.has(i));
-      if (!remaining.length) continue;
-      const text = textOf(remaining).replace(/\n/g, " ");
-      if (!text.trim()) continue;
-      const source = `Pagina ${page.page}`;
-      const heading =
-        /^(?:giorno|giornata|day|allenamento)\s*([ABCD1-4])\s*[:.–-]?(?:\s+.*)?$/i.exec(text);
-      if (heading) {
-        day =
-          days.find((d, i) => d === heading[1]?.toUpperCase() || String(i + 1) === heading[1]) ??
-          null;
-        section = "pending";
-        accessory = null;
-        continue;
-      }
-      if (!tables.length && day) {
-        const row = /^(.+?)\s+(\d+)\s*[x×]\s*(\d+(?:\s*[\/–-]\s*\d+)?)\s*$/i.exec(text);
-        if (row) {
-          const ex = exerciseFromCells(row[1] ?? "", row[2] ?? "", row[3] ?? "", "", text);
-          if (ex) {
-            block.plan[day].push(ex);
-            continue;
-          }
-        }
-      }
-      if (/^(note(?:\s+generali)?|indicazioni\s+generali)\s*:?$/i.test(text)) {
-        section = "general";
-        accessory = null;
-        continue;
-      }
-      if (/^(domande\s+frequenti|faq|introduzione|come\b)/i.test(text)) {
-        section = "pending";
-        accessory = null;
-      }
-      if (/^(cardio|addome|polpacci|attivita\s+accessori[ae]|accessori)\b/i.test(text)) {
-        section = "accessory";
-        accessory = { id: crypto.randomUUID(), text, source };
-        block.accessories?.push(accessory);
-        continue;
-      }
-      if (section === "accessory" && accessory && /^[•*-]/.test(text)) {
-        accessory.text += `\n${text}`;
-        continue;
-      }
-      if (section === "general") {
-        if (block.notes) block.notes.coach += [block.notes.coach ? "\n" : "", text].join("");
-        continue;
-      }
-      pending(text, source);
+    // Text outside recognized table rows is intentionally ignored.
+    for (const h of headings) {
+      const match = /^(?:giorno|giornata|day|allenamento)\s*([A-Z]|\d{1,2})\b/i.exec(h.text);
+      const label = match?.[1]?.toUpperCase();
+      const found = days.find((d, i) => d === label || String(i + 1) === label);
+      if (found) day = found;
     }
   }
+  block.dayOrder = discovered.length ? discovered : ["A"];
   return block;
 }

@@ -146,6 +146,29 @@ describe("Importazione riutilizzabile delle tabelle PDF", () => {
         ?.reps,
     ).toBe("8–10");
   });
+  it("ignora tutto il testo esterno ma conserva le note della riga", () => {
+    const p = table(
+      1,
+      ["Esercizio", "Serie", "Reps", "Note"],
+      [["Calf nuovo", "2", "12", "Serie 1: Buffer 1\nSerie 2: Buffer 0"]],
+      "Giorno E",
+    );
+    [
+      "Introduzione",
+      "FAQ",
+      "Note generali",
+      "Cardio 15 min",
+      "Addome 3 x 12",
+      "Polpacci 4 x 10",
+    ].forEach((text, i) => p.items.push({ text, x: 40, y: 600 - i * 20, width: 100, height: 10 }));
+    const b = planFromPages([p], "Test");
+    expect(b.dayOrder).toEqual(["E"]);
+    expect(b.plan["E"]?.map((e) => e.name)).toEqual(["Calf nuovo"]);
+    expect(b.plan["E"]?.[0]?.seriesNotes?.map((n) => n.coach)).toEqual(["Buffer 1", "Buffer 0"]);
+    expect(b.pendingNotes).toEqual([]);
+    expect(b.accessories).toEqual([]);
+    expect(b.notes?.coach).toBe("");
+  });
   it("legge una tabella senza bordi con intestazioni e righe semplici", () => {
     const p = table(
       1,
@@ -189,12 +212,10 @@ describe.skipIf(!process.env["PDF_REAL_GEOMETRY"])("PDF reale fornito dall’ute
     expect(e?.seriesNotes?.map((n) => n.coach)).toEqual(["Buffer 1", "Buffer 0"]);
     expect(e?.reviewIssues?.length).toBe(1);
   });
-  it("mantiene cardio, addome e alternative dei polpacci senza giornate inventate", () => {
+  it("ignora cardio, note generali e altre indicazioni fuori dalle tabelle", () => {
     const b = read();
-    expect(b.accessories).toHaveLength(3);
-    expect(b.accessories?.[0]?.text).toContain("15 min");
-    expect(b.accessories?.[1]?.text).toContain("3x12-15");
-    expect(b.accessories?.[2]?.text).toContain("Standing Calf oppure Calf al multipower");
-    expect(b.notes?.coach).toContain("cedimento");
+    expect(b.accessories).toEqual([]);
+    expect(b.notes?.coach).toBe("");
+    expect(b.pendingNotes?.some((n) => /Standing Calf oppure/.test(n.text))).toBe(false);
   });
 });

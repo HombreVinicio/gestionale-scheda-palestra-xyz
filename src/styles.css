@@ -1093,3 +1093,100 @@ progress::-moz-progress-bar {
     }
   }
 }
+
+/* Stable, touch-friendly plan editing controls. */
+.editor-action {
+  position: static;
+  margin-top: 16px;
+}
+.day-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.day-selector button {
+  min-width: 72px;
+  min-height: 44px;
+  flex: 0 0 auto;
+}
+.cycle-days {
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.cycle-days::before {
+  display: none;
+}
+.editor-tools {
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.editor-tools select {
+  width: 110px;
+  min-height: 44px;
+  padding: 8px;
+}
+.editor-tools button {
+  width: 44px;
+  height: 44px;
+}
+.edit-header {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.exercise-day-label {
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 700;
+}
+.day-count-editor {
+  margin: 16px 0;
+}
+.day-count-editor > label {
+  display: block;
+  max-width: 240px;
+}
+.day-reduction {
+  margin-top: 16px;
+  border-block: 1px solid var(--border);
+  padding: 16px 0;
+}
+.day-reduction h3 {
+  font-size: 16px;
+}
+.day-removal-options {
+  display: grid;
+  gap: 6px;
+  margin: 10px 0;
+}
+.day-removal-options label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.day-removal-options input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--primary);
+}
+.edit-exercise {
+  overflow-anchor: none;
+}
+select.field-input {
+  color-scheme: dark;
+}
+@media (max-width: 640px) {
+  .edit-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .edit-grid > label:first-child {
+    grid-column: 1 / -1;
+  }
+  .edit-header {
+    align-items: flex-start;
+  }
+  .editor-tools {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

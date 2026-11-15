@@ -78,7 +78,7 @@ function Workout() {
       </Link>
       <PageHeading
         eyebrow={`${snapshot.blockName} · SETTIMANA ${session.week}`}
-        title={`Giorno ${session.day} · ${dayNames[session.day]}`}
+        title={`Giorno ${session.day}${dayNames[session.day] ? ` · ${dayNames[session.day]}` : ""}`}
       />
       <div className="session-summary">
         <span className="tag">

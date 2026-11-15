@@ -64,7 +64,7 @@ function EditBlock() {
           Completa tutte le giornate, i nomi e le ripetizioni. Serie: da 1 a 12.
         </p>
       )}
-      <div className="sticky-action">
+      <div className="sticky-action editor-action">
         <span className="tiny text-muted">
           {saveError ? "Salvataggio non riuscito" : "Bozza salvata"}
         </span>

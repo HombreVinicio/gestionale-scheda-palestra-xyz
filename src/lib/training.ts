@@ -1,6 +1,33 @@
 import { z } from "zod";
 
-export const days = ["A", "B", "C", "D"] as const;
+export const days = [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "I",
+  "J",
+  "K",
+  "L",
+  "M",
+  "N",
+  "O",
+  "P",
+  "Q",
+  "R",
+  "S",
+  "T",
+  "U",
+  "V",
+  "W",
+  "X",
+  "Y",
+  "Z",
+] as const;
 export type Day = (typeof days)[number];
 export const notesSchema = z.object({ coach: z.string(), personal: z.string() });
 export type Notes = z.infer<typeof notesSchema>;
@@ -24,16 +51,27 @@ const blockSchema = z.object({
   name: z.string(),
   archived: z.boolean(),
   demo: z.boolean(),
+  dayOrder: z
+    .array(z.enum(days))
+    .min(1)
+    .max(days.length)
+    .refine((v) => new Set(v).size === v.length)
+    .optional(),
   notes: notesSchema.optional(),
-  dayNotes: z.object({ A: notesSchema, B: notesSchema, C: notesSchema, D: notesSchema }).optional(),
+  dayNotes: z
+    .object({ A: notesSchema, B: notesSchema, C: notesSchema, D: notesSchema })
+    .catchall(notesSchema)
+    .optional(),
   pendingNotes: z.array(pendingNoteSchema).optional(),
   accessories: z.array(pendingNoteSchema).optional(),
-  plan: z.object({
-    A: z.array(exerciseSchema),
-    B: z.array(exerciseSchema),
-    C: z.array(exerciseSchema),
-    D: z.array(exerciseSchema),
-  }),
+  plan: z
+    .object({
+      A: z.array(exerciseSchema),
+      B: z.array(exerciseSchema),
+      C: z.array(exerciseSchema),
+      D: z.array(exerciseSchema),
+    })
+    .catchall(z.array(exerciseSchema)),
 });
 const setSchema = z.object({
   weight: z.string().refine((v) => v === "" || (Number.isFinite(Number(v)) && Number(v) >= 0)),
@@ -52,6 +90,7 @@ const sessionSchema = z.object({
   results: z.record(z.array(setSchema)),
   snapshot: z
     .object({
+      cycleDays: z.array(z.enum(days)).optional(),
       blockName: z.string(),
       blockNotes: notesSchema,
       dayNotes: notesSchema,
@@ -99,7 +138,7 @@ export type Block = z.infer<typeof blockSchema>;
 export type Session = z.infer<typeof sessionSchema>;
 export type TrainingState = z.infer<typeof stateSchema>;
 export const storageKey = "serie-training-v1";
-export const dayNames: Record<Day, string> = {
+export const dayNames: Partial<Record<Day, string>> = {
   A: "Petto e tricipiti",
   B: "Dorso e bicipiti",
   C: "Gambe e addome",
@@ -188,7 +227,7 @@ export function initialState(): TrainingState {
     closedAt: `2026-11-${String(3 + i * 2).padStart(2, "0")}T17:52:00Z`,
     demo: true,
     results: Object.fromEntries(
-      plan[day].map((e, j) => [
+      (plan[day] ?? []).map((e, j) => [
         e.id,
         Array.from({ length: e.sets }, (_, k) => ({
           weight: String([55, 40, 35, 20, 12][j] ?? 20),
@@ -205,15 +244,28 @@ export function cursor(state: TrainingState, blockId: string): { day: Day; week:
   const latest = state.sessions
     .filter((s) => s.blockId === blockId && s.closedAt)
     .sort((a, b) => b.order - a.order)[0];
-  if (!latest) return { day: "A", week: 1 };
-  const index = days.indexOf(latest.day);
-  return { day: days[(index + 1) % 4] ?? "A", week: latest.week + (latest.day === "D" ? 1 : 0) };
+  const block = state.blocks.find((b) => b.id === blockId);
+  const order = block ? blockDays(block) : days.slice(0, 4);
+  if (!latest) return { day: order[0] ?? "A", week: 1 };
+  if (!order.includes(latest.day)) {
+    const originalOrder = latest.snapshot?.cycleDays ?? days.slice(0, 4);
+    const following = originalOrder
+      .slice(originalOrder.indexOf(latest.day) + 1)
+      .find((d) => order.includes(d));
+    return { day: following ?? order[0] ?? "A", week: latest.week + (following ? 0 : 1) };
+  }
+  const index = order.indexOf(latest.day);
+  const next = index + 1;
+  return {
+    day: order[next] ?? order[0] ?? "A",
+    week: latest.week + (next >= order.length ? 1 : 0),
+  };
 }
 
 export function beginSession(state: TrainingState, day: Day): TrainingState {
   if (state.currentSessionId || !state.activeBlockId) return state;
   const block = state.blocks.find((b) => b.id === state.activeBlockId && !b.archived);
-  if (!block) return state;
+  if (!block || !blockDays(block).includes(day)) return state;
   const position = cursor(state, block.id);
   const session: Session = {
     id: crypto.randomUUID(),
@@ -226,7 +278,7 @@ export function beginSession(state: TrainingState, day: Day): TrainingState {
     demo: false,
     snapshot: makeSnapshot(block, day),
     results: Object.fromEntries(
-      block.plan[day].map((e) => [
+      (block.plan[day] ?? []).map((e) => [
         e.id,
         Array.from({ length: e.sets }, () => ({ weight: "", reps: "", done: false })),
       ]),
@@ -284,10 +336,11 @@ export function parseBackup(text: string): TrainingState {
 }
 export function makeSnapshot(block: Block, day: Day) {
   return structuredClone({
+    cycleDays: blockDays(block),
     blockName: block.name,
     blockNotes: block.notes ?? emptyNotes(),
     dayNotes: block.dayNotes?.[day] ?? emptyNotes(),
-    exercises: block.plan[day],
+    exercises: block.plan[day] ?? [],
   });
 }
 export function sessionSnapshot(session: Session, block: Block) {
@@ -324,7 +377,7 @@ export function reorderExercise(
   id: string,
   direction: -1 | 1,
 ): Block["plan"] {
-  const list = [...plan[day]];
+  const list = [...(plan[day] ?? [])];
   const index = list.findIndex((e) => e.id === id);
   const target = index + direction;
   const exercise = list[index];
@@ -354,15 +407,15 @@ export function assignPendingNote(
   let next = structuredClone(block);
   if (target.level === "block") next.notes = append(next.notes ?? emptyNotes());
   else if (target.level === "day") {
-    const map = next.dayNotes ?? {
+    const map: NonNullable<Block["dayNotes"]> = next.dayNotes ?? {
       A: emptyNotes(),
       B: emptyNotes(),
       C: emptyNotes(),
       D: emptyNotes(),
     };
-    next.dayNotes = { ...map, [target.day]: append(map[target.day]) };
+    next.dayNotes = { ...map, [target.day]: append(map[target.day] ?? emptyNotes()) };
   } else {
-    const exercise = next.plan[target.day].find((e) => e.id === target.exerciseId);
+    const exercise = next.plan[target.day]?.find((e) => e.id === target.exerciseId);
     if (
       !exercise ||
       (target.level === "series" && (target.series < 0 || target.series >= exercise.sets))
@@ -392,4 +445,37 @@ export function volume(session: Session) {
 }
 export function formatDate(date: string) {
   return new Date(date).toLocaleDateString("it-IT", { day: "numeric", month: "short" });
+}
+
+export function blockDays(block: Block): Day[] {
+  return block.dayOrder ?? ["A", "B", "C", "D"];
+}
+export function growBlockDays(block: Block, count: number): Block {
+  const order = blockDays(block);
+  if (!Number.isInteger(count) || count <= order.length || count > days.length) return block;
+  const added = days.filter((d) => !order.includes(d)).slice(0, count - order.length);
+  return {
+    ...block,
+    dayOrder: [...order, ...added],
+    plan: { ...block.plan, ...Object.fromEntries(added.map((d) => [d, []])) },
+  };
+}
+// Removed letters are not renamed: existing session identities and comparisons remain stable.
+export function removeBlockDays(block: Block, removed: Day[], destination: Day | null): Block {
+  const order = blockDays(block);
+  const remaining = order.filter((d) => !removed.includes(d));
+  if (
+    !removed.length ||
+    !remaining.length ||
+    removed.some((d) => !order.includes(d)) ||
+    (destination && !remaining.includes(destination))
+  )
+    return block;
+  const plan = structuredClone(block.plan);
+  if (destination)
+    plan[destination] = [...(plan[destination] ?? []), ...removed.flatMap((d) => plan[d] ?? [])];
+  removed.forEach((d) => {
+    plan[d] = [];
+  });
+  return { ...block, plan, dayOrder: remaining };
 }

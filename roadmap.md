@@ -1,4 +1,7 @@
 # App allenamenti
+- [x] Importare soltanto righe delle tabelle, ignorando tutto il testo esterno.
+- [x] Numero di giornate modificabile, riduzione con scelta e conferma, conservazione storico e confronti.
+- [x] Bozza con comandi grandi, lettere visibili e posizione stabile; verifica telefono e test.
 - [x] Comando esplicito Elimina bozza nell’importazione del nuovo blocco, con conferma.
 - [x] Importazione PDF riutilizzabile con celle, prescrizioni per serie, accessori e revisione dei dubbi.
 - [x] Verifica PDF reale e documenti diversi, incluse tabelle su più pagine, backup e riapertura.

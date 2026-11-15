@@ -1,18 +1,20 @@
 # SERIE · Allenamenti in palestra
 
-App in italiano per il telefono con schede A–D, registrazione delle serie, storico e backup.
+App in italiano per il telefono con numero di giornate modificabile, registrazione delle serie, storico e backup.
 
 ## Dati e privacy
 
 Le modifiche sono salvate immediatamente nel localStorage del browser. Non ci sono account o invio di risultati online. I dati non si sincronizzano tra dispositivi o domini: esporta un backup prima di cambiare browser o hosting. I backup JSON contengono i risultati e vanno conservati privatamente. Le sessioni iniziali DEMO sono esempi; le nuove sessioni sono personali.
 
-I PDF con testo vengono letti localmente nel browser, senza inviare o salvare il documento. Solo giornate, esercizi completi e serie esplicitamente riconosciuti vengono associati; tutte le altre righe, incluse quelle a fondo pagina, restano da verificare. I PDF scansionati non hanno OCR: la scheda va inserita manualmente. «Prova senza PDF» resta dimostrativo. Note coach e personali sono disponibili a livello di blocco, giornata, esercizio e serie. «Modifica blocco» salva una bozza locale e applica la scheda agli allenamenti successivi; ogni sessione conserva una copia indipendente della scheda all’inizio dell’allenamento. I dati precedenti vengono aggiornati senza perdere risultati. Non inserire PDF, backup, credenziali o risultati personali nella repository pubblica. Il workflow pubblica solo l’output del sito.
+I PDF con testo vengono letti localmente nel browser, senza inviare o salvare il documento. Si importano soltanto gli esercizi delle tabelle delle giornate e le note della stessa riga. Tutto il testo esterno viene ignorato, comprese FAQ, introduzioni, note generali e attività accessorie. I PDF scansionati non hanno OCR: la scheda va inserita manualmente. «Prova senza PDF» resta dimostrativo. Note coach e personali sono inseribili manualmente a livello di blocco, giornata, esercizio e serie. «Modifica blocco» salva una bozza locale e applica la scheda agli allenamenti successivi; ogni sessione conserva una copia indipendente della scheda all’inizio dell’allenamento. I dati precedenti vengono aggiornati senza perdere risultati. Non inserire PDF, backup, credenziali o risultati personali nella repository pubblica. Il workflow pubblica solo l’output del sito.
 
 ### Revisione delle schede PDF
 
 Il lettore ricostruisce celle e testo multilinea usando la geometria del documento e identifica le colonne dalle intestazioni (italiane o inglesi), anche in ordine diverso. I nomi degli esercizi e i conteggi non sono predefiniti. Le colonne di registrazione `SET N.1` ecc. non determinano le serie. Tabelle continuate possono mantenere la giornata precedente quando intestazioni o celle allineate ne confermano la struttura. Tabelle senza bordi sono riconosciute con intestazioni e righe semplici; strutture non riconosciute restano nel testo da verificare.
 
-Top set e back-off conservano ruoli e range per serie, separati dai risultati. I range con `/` vengono normalizzati; le notazioni non riconosciute restano originali e segnalate. Ripetizioni mancanti rimangono vuote nella bozza e devono essere completate prima dell’attivazione. Il testo originale resta consultabile per ogni esercizio. I buffer distinti nella stessa cella richiedono verifica dell’ordine. Accessori espliciti sono modificabili separatamente senza giornata assegnata; le alternative restano nello stesso testo. Le note generali esplicite sono separate dalle FAQ, che non generano esercizi. Tutti questi dati entrano nel backup e le prescrizioni per serie nelle copie storiche delle sessioni.
+Top set e back-off conservano ruoli e range per serie, separati dai risultati. I range con `/` vengono normalizzati; le notazioni non riconosciute delle righe delle tabelle restano originali e segnalate. Ripetizioni mancanti rimangono vuote nella bozza e devono essere completate prima dell’attivazione. Il testo originale resta consultabile per ogni esercizio. I buffer distinti nella stessa cella richiedono verifica dell’ordine. Le attività e note dei blocchi già salvati vengono conservate, ma non sono più generate dall’importazione. Tutti i dati entrano nel backup e le prescrizioni per serie nelle copie storiche delle sessioni.
+
+«Allenamenti a settimana» aggiunge giornate vuote A–Z. Ridurre il numero richiede la scelta delle giornate e della destinazione degli esercizi (spostamento o eliminazione dalla scheda), con conferma. Le lettere superstiti restano stabili per non confondere sessioni e confronti. Il ciclo segue l’ordine della scheda e dopo l’ultima giornata passa alla settimana successiva, senza vincoli di calendario.
 
 ## Sviluppo
 

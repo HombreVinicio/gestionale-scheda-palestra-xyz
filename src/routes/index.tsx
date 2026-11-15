@@ -13,7 +13,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { EmptyBlock } from "@/components/app-shell";
 import { useTraining } from "@/components/training-provider";
-import { beginSession, cursor, dayNames, days, formatDate, volume, type Day } from "@/lib/training";
+import {
+  beginSession,
+  cursor,
+  dayNames,
+  blockDays,
+  formatDate,
+  volume,
+  type Day,
+} from "@/lib/training";
 import trainingImage from "@/assets/training.jpg";
 import { PlanNotes } from "@/components/plan-notes";
 
@@ -44,8 +52,10 @@ function TrainingHome() {
   const current = state.sessions.find((s) => s.id === state.currentSessionId);
   if (!block) return <EmptyBlock />;
   const position = cursor(state, block.id);
-  const selected = current?.day ?? chosenDay ?? position.day;
-  const exercises = block.plan[selected];
+  const order = blockDays(block);
+  const selected =
+    current?.day ?? (chosenDay && order.includes(chosenDay) ? chosenDay : position.day);
+  const exercises = current?.snapshot?.exercises ?? block.plan[selected] ?? [];
   const latest = state.sessions
     .filter((s) => s.blockId === block.id && s.closedAt)
     .sort((a, b) => b.order - a.order)[0];
@@ -81,7 +91,7 @@ function TrainingHome() {
           <h1>
             Giorno {selected}
             <br />
-            {dayNames[selected]}
+            {dayNames[selected] ?? ""}
           </h1>
           <div className="hero-description">
             <span>
@@ -124,7 +134,7 @@ function TrainingHome() {
             </p>
           )}
           <div className="day-selector" aria-label="Scegli giornata">
-            {days.map((d) => (
+            {order.map((d) => (
               <Button
                 key={d}
                 variant="ghost"
@@ -162,7 +172,7 @@ function TrainingHome() {
               <span className="tiny">Settimana {position.week}</span>
             </div>
             <div className="cycle-days">
-              {days.map((d) => (
+              {order.map((d) => (
                 <div
                   className={`cycle-item ${completedDays.includes(d) ? "done" : d === position.day ? "next" : ""}`}
                   key={d}
@@ -181,12 +191,14 @@ function TrainingHome() {
             <div className="progress-track">
               <progress
                 value={new Set(completedDays).size}
-                max={4}
+                max={order.length}
                 aria-label="Giornate completate nella settimana"
               />
             </div>
             <div className="flex justify-between tiny text-muted">
-              <span>{new Set(completedDays).size} di 4 allenamenti</span>
+              <span>
+                {new Set(completedDays).size} di {order.length} allenamenti
+              </span>
             </div>
           </section>
           <div className="section-heading">
@@ -203,7 +215,7 @@ function TrainingHome() {
                 </span>
                 <div>
                   <h3>
-                    Giorno {latest.day} · {dayNames[latest.day]}
+                    Giorno {latest.day} {dayNames[latest.day] ? `· ${dayNames[latest.day]}` : ""}
                   </h3>
                   <p className="tiny text-muted">
                     {formatDate(latest.startedAt)} · Settimana {latest.week}

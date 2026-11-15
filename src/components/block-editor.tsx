@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { ArrowDown, ArrowUp, Check, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DayCountEditor } from "@/components/day-count-editor";
 import {
   assignPendingNote,
   days,
+  blockDays,
   emptyNotes,
   reorderExercise,
   type Block,
@@ -62,9 +64,9 @@ function PendingNote({
   const options: { value: string; label: string; target: NoteTarget }[] = [
     { value: "block", label: "Blocco", target: { level: "block" } },
   ];
-  days.forEach((day) => {
+  blockDays(block).forEach((day) => {
     options.push({ value: `day:${day}`, label: `Giorno ${day}`, target: { level: "day", day } });
-    block.plan[day].forEach((e) => {
+    block.plan[day]?.forEach((e) => {
       options.push({
         value: e.id,
         label: `${day} · ${e.name}`,
@@ -144,13 +146,46 @@ export function BlockEditor({
   block: Block;
   onChange: (block: Block) => void;
 }) {
-  const [day, setDay] = useState<Day>("A");
-  const edit = (id: string, patch: Partial<Exercise>) =>
-    onChange({
+  const [chosenDay, setDay] = useState<Day>("A");
+  const order = blockDays(block);
+  const day = order.includes(chosenDay) ? chosenDay : (order[0] ?? "A");
+  const position = useRef<number | null>(null);
+  const change = (next: Block) => {
+    position.current = window.scrollY;
+    onChange(next);
+  };
+  useLayoutEffect(() => {
+    if (position.current !== null) {
+      window.scrollTo({ top: position.current, behavior: "instant" });
+      position.current = null;
+    }
+  }, [block]);
+  const add = () =>
+    change({
       ...block,
       plan: {
         ...block.plan,
-        [day]: block.plan[day].map((e) => (e.id === id ? { ...e, ...patch } : e)),
+        [day]: [
+          ...(block.plan[day] ?? []),
+          {
+            id: crypto.randomUUID(),
+            name: "Nuovo esercizio",
+            sets: 3,
+            reps: "10–12",
+            note: "",
+            muscle: "",
+            personalNote: "",
+            seriesNotes: [],
+          },
+        ],
+      },
+    });
+  const edit = (id: string, patch: Partial<Exercise>) =>
+    change({
+      ...block,
+      plan: {
+        ...block.plan,
+        [day]: (block.plan[day] ?? []).map((e) => (e.id === id ? { ...e, ...patch } : e)),
       },
     });
   return (
@@ -161,49 +196,52 @@ export function BlockEditor({
           id="block-name"
           className="field-input"
           value={block.name}
-          onChange={(e) => onChange({ ...block, name: e.target.value })}
+          onChange={(e) => change({ ...block, name: e.target.value })}
         />
       </label>
+      <DayCountEditor block={block} onChange={change} />
       <details className="editor-notes">
         <summary>Note del blocco</summary>
         <NoteFields
           label="Note del blocco"
           value={block.notes ?? emptyNotes()}
-          onChange={(notes) => onChange({ ...block, notes })}
+          onChange={(notes) => change({ ...block, notes })}
         />
       </details>
-      <details className="editor-notes" open={Boolean(block.accessories?.length)}>
-        <summary>Attività accessorie · senza giornata assegnata</summary>
-        {block.accessories?.map((a) => (
-          <label key={a.id}>
-            <span className="field-label">{a.source}</span>
-            <textarea
-              className="field-input"
-              rows={3}
-              aria-label={`Attività accessoria ${a.source}`}
-              value={a.text}
-              onChange={(event) =>
-                onChange({
-                  ...block,
-                  accessories: block.accessories?.map((x) =>
-                    x.id === a.id ? { ...x, text: event.target.value } : x,
-                  ),
-                })
-              }
-            />
-          </label>
-        ))}
-      </details>
+      {Boolean(block.accessories?.length) && (
+        <details className="editor-notes" open>
+          <summary>Attività accessorie · senza giornata assegnata</summary>
+          {block.accessories?.map((a) => (
+            <label key={a.id}>
+              <span className="field-label">{a.source}</span>
+              <textarea
+                className="field-input"
+                rows={3}
+                aria-label={`Attività accessoria ${a.source}`}
+                value={a.text}
+                onChange={(event) =>
+                  change({
+                    ...block,
+                    accessories: block.accessories?.map((x) =>
+                      x.id === a.id ? { ...x, text: event.target.value } : x,
+                    ),
+                  })
+                }
+              />
+            </label>
+          ))}
+        </details>
+      )}
       {Boolean(block.pendingNotes?.length) && (
         <section className="pending-section">
           <h2>Da verificare · {block.pendingNotes?.length}</h2>
           {block.pendingNotes?.map((n) => (
-            <PendingNote key={n.id} block={block} id={n.id} onChange={onChange} />
+            <PendingNote key={n.id} block={block} id={n.id} onChange={change} />
           ))}
         </section>
       )}
       <div className="day-selector">
-        {days.map((d) => (
+        {order.map((d) => (
           <Button
             key={d}
             variant="ghost"
@@ -216,7 +254,10 @@ export function BlockEditor({
       </div>
       <div className="section-heading">
         <h2>Giorno {day}</h2>
-        <span className="tiny text-muted">{block.plan[day].length} esercizi</span>
+        <Button variant="outline" onClick={add}>
+          <Plus />
+          Aggiungi esercizio
+        </Button>
       </div>
       <details className="editor-notes">
         <summary>Note della giornata</summary>
@@ -224,7 +265,7 @@ export function BlockEditor({
           label={`Giorno ${day}`}
           value={block.dayNotes?.[day] ?? emptyNotes()}
           onChange={(notes) =>
-            onChange({
+            change({
               ...block,
               dayNotes: {
                 ...(block.dayNotes ?? {
@@ -239,31 +280,33 @@ export function BlockEditor({
           }
         />
       </details>
-      {block.plan[day].map((e, i) => (
+      {(block.plan[day] ?? []).map((e, i) => (
         <section className="edit-exercise" key={e.id}>
           <div className="edit-header">
-            <span className="tiny text-muted">ESERCIZIO {i + 1}</span>
+            <span className="exercise-day-label">
+              Giorno {day} · {i + 1}
+            </span>
             <div className="editor-tools">
               <select
                 aria-label={`Giornata di ${e.name}`}
                 className="field-input"
                 value={day}
                 onChange={(event) => {
-                  const target = days.find((d) => d === event.target.value);
+                  const target = order.find((d) => d === event.target.value);
                   if (!target || target === day) return;
-                  onChange({
+                  change({
                     ...block,
                     plan: {
                       ...block.plan,
-                      [day]: block.plan[day].filter((x) => x.id !== e.id),
-                      [target]: [...block.plan[target], e],
+                      [day]: (block.plan[day] ?? []).filter((x) => x.id !== e.id),
+                      [target]: [...(block.plan[target] ?? []), e],
                     },
                   });
                 }}
               >
-                {days.map((d) => (
+                {order.map((d) => (
                   <option value={d} key={d}>
-                    {d}
+                    Giorno {d}
                   </option>
                 ))}
               </select>
@@ -274,7 +317,7 @@ export function BlockEditor({
                 aria-label={`Sposta su ${e.name}`}
                 disabled={i === 0}
                 onClick={() =>
-                  onChange({ ...block, plan: reorderExercise(block.plan, day, e.id, -1) })
+                  change({ ...block, plan: reorderExercise(block.plan, day, e.id, -1) })
                 }
               >
                 <ArrowUp />
@@ -284,9 +327,9 @@ export function BlockEditor({
                 size="icon"
                 title="Sposta giù"
                 aria-label={`Sposta giù ${e.name}`}
-                disabled={i === block.plan[day].length - 1}
+                disabled={i === (block.plan[day] ?? []).length - 1}
                 onClick={() =>
-                  onChange({ ...block, plan: reorderExercise(block.plan, day, e.id, 1) })
+                  change({ ...block, plan: reorderExercise(block.plan, day, e.id, 1) })
                 }
               >
                 <ArrowDown />
@@ -302,9 +345,12 @@ export function BlockEditor({
                       `Rimuovere ${e.name} dalla scheda? I risultati storici saranno conservati.`,
                     )
                   )
-                    onChange({
+                    change({
                       ...block,
-                      plan: { ...block.plan, [day]: block.plan[day].filter((x) => x.id !== e.id) },
+                      plan: {
+                        ...block.plan,
+                        [day]: (block.plan[day] ?? []).filter((x) => x.id !== e.id),
+                      },
                     });
                 }}
               >
@@ -432,31 +478,7 @@ export function BlockEditor({
           </details>
         </section>
       ))}
-      <Button
-        className="my-5"
-        variant="outline"
-        onClick={() =>
-          onChange({
-            ...block,
-            plan: {
-              ...block.plan,
-              [day]: [
-                ...block.plan[day],
-                {
-                  id: crypto.randomUUID(),
-                  name: "Nuovo esercizio",
-                  sets: 3,
-                  reps: "10–12",
-                  note: "",
-                  muscle: "",
-                  personalNote: "",
-                  seriesNotes: [],
-                },
-              ],
-            },
-          })
-        }
-      >
+      <Button className="my-5" variant="outline" onClick={add}>
         <Plus />
         Aggiungi esercizio
       </Button>
@@ -466,10 +488,10 @@ export function BlockEditor({
 export function validBlock(block: Block) {
   return (
     Boolean(block.name.trim()) &&
-    days.every(
+    blockDays(block).every(
       (d) =>
-        block.plan[d].length > 0 &&
-        block.plan[d].every(
+        (block.plan[d] ?? []).length > 0 &&
+        (block.plan[d] ?? []).every(
           (e) =>
             e.name.trim() &&
             e.reps.trim() &&

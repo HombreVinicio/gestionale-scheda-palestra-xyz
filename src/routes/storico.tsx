@@ -5,7 +5,15 @@ import { Button } from "@/components/ui/button";
 import { PageHeading } from "@/components/app-shell";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { useTraining } from "@/components/training-provider";
-import { dayNames, formatDate, reopenSession, sessionSnapshot, volume } from "@/lib/training";
+import {
+  blockDays,
+  type Day,
+  dayNames,
+  formatDate,
+  reopenSession,
+  sessionSnapshot,
+  volume,
+} from "@/lib/training";
 import { PlanNotes } from "@/components/plan-notes";
 export const Route = createFileRoute("/storico")({
   validateSearch: (search: Record<string, unknown>): { sessione?: string | undefined } => ({
@@ -37,7 +45,7 @@ function TrainingHistory() {
   const blockId = chosenBlockId ?? state.activeBlockId ?? state.blocks[0]?.id ?? "";
   const [week, setWeek] = useState("tutte");
   const [confirm, setConfirm] = useState(false);
-  const [planDay, setPlanDay] = useState<"A" | "B" | "C" | "D">("A");
+  const [planDay, setPlanDay] = useState<Day>("A");
   const [showPlan, setShowPlan] = useState(false);
   const selected = state.sessions.find((s) => s.id === sessione);
   const block = state.blocks.find((b) => b.id === (selected?.blockId ?? blockId));
@@ -51,7 +59,7 @@ function TrainingHistory() {
         </Link>
         <PageHeading
           eyebrow={`${snapshot?.blockName ?? block.name} · SETTIMANA ${selected.week}`}
-          title={`Giorno ${selected.day} · ${dayNames[selected.day]}`}
+          title={`Giorno ${selected.day}${dayNames[selected.day] ? ` · ${dayNames[selected.day]}` : ""}`}
         />
         <div className="session-summary">
           <span className="tag">{formatDate(selected.startedAt)}</span>
@@ -187,7 +195,7 @@ function TrainingHistory() {
             </div>
           )}
           <div className="day-selector">
-            {(["A", "B", "C", "D"] as const).map((d) => (
+            {blockDays(block).map((d) => (
               <Button
                 key={d}
                 variant="ghost"
@@ -199,7 +207,7 @@ function TrainingHistory() {
             ))}
           </div>
           <PlanNotes {...block.dayNotes?.[planDay]} />
-          {block.plan[planDay].map((e) => (
+          {(block.plan[planDay] ?? []).map((e) => (
             <div className="exercise-preview" key={e.id}>
               <div>
                 <h3>{e.name}</h3>
@@ -243,7 +251,7 @@ function TrainingHistory() {
                     <span className="session-icon">{s.day}</span>
                     <div className="details">
                       <h3>
-                        Giorno {s.day} · {dayNames[s.day]}
+                        Giorno {s.day} {dayNames[s.day] ? `· ${dayNames[s.day]}` : ""}
                       </h3>
                       <p>
                         {formatDate(s.startedAt)} ·{" "}

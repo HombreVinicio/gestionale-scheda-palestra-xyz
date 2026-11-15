@@ -51,8 +51,7 @@ function NewBlock() {
               <>
                 PDF letto sul dispositivo · {draft.source}
                 <br />
-                Verifica esercizi, serie e note. Le righe non riconosciute restano tra quelle da
-                verificare.
+                 Verifica esercizi, serie e note delle tabelle.
               </>
             ) : draft.block.demo ? (
               <>
@@ -70,7 +69,7 @@ function NewBlock() {
           />
           {!validBlock(draft.block) && (
             <p className="error-message">
-              Completa le giornate A–D, i nomi e le ripetizioni. Serie: da 1 a 12.
+              Completa tutte le giornate, i nomi e le ripetizioni. Serie: da 1 a 12.
             </p>
           )}
           {state.currentSessionId && (
@@ -78,7 +77,7 @@ function NewBlock() {
               Chiudi l’allenamento in corso prima di attivare il nuovo blocco.
             </p>
           )}
-          <div className="sticky-action">
+          <div className="sticky-action editor-action">
             <Button variant="ghost" onClick={() => setDeleteDraft(true)}>
               <Trash2 />
               Elimina bozza
