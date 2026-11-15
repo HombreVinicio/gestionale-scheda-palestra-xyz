@@ -152,7 +152,6 @@ function TrainingHome() {
                 </p>
                 <PlanNotes coach={e.note} personal={e.personalNote ?? ""} />
               </div>
-              <span className="exercise-end tag">{e.muscle}</span>
             </div>
           ))}
         </section>
