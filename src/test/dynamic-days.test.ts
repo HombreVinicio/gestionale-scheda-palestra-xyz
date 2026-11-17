@@ -9,6 +9,7 @@ import {
   parseBackup,
   removeBlockDays,
   saveBlock,
+  type TrainingState,
 } from "@/lib/training";
 
 describe("Numero di allenamenti modificabile", () => {
@@ -34,7 +35,13 @@ describe("Numero di allenamenti modificabile", () => {
     const b = s.blocks[0];
     if (!b) throw new Error();
     s.blocks = [growBlockDays(b, 6)];
-    const started = beginSession(s, "F");
+    let progressed: TrainingState = s;
+    for (const day of ["C", "A", "E", "B", "D"] as const) {
+      const session = beginSession(progressed, day);
+      progressed = closeSession(session, session.currentSessionId ?? "");
+      expect(cursor(progressed, b.id).week).toBe(1);
+    }
+    const started = beginSession(progressed, "F");
     const closed = closeSession(started, started.currentSessionId ?? "");
     expect(cursor(closed, b.id)).toEqual({ day: "A", week: 2 });
     expect(parseBackup(JSON.stringify(closed)).blocks[0]?.dayOrder).toHaveLength(6);

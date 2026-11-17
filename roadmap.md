@@ -1,4 +1,6 @@
 # App allenamenti
+- [x] Allineare peso e ripetizioni precedenti, chiudere e riaprire esercizi completati, mostrare serie mancanti.
+- [x] Giornate in ordine libero: avanzare settimana solo dopo tutte le giornate; test e verifica su telefono.
 - [x] Homepage compatta: Nuovo blocco in alto, avanzamento prima della scheda e giornate consultabili durante una sessione; verifica telefono e desktop.
 - [x] Giorni e azioni dell’importazione sempre visibili; ripetizioni per serie e testi più leggibili sul telefono, verificati con scorrimento e riapertura.
 - [x] Importare soltanto righe delle tabelle, ignorando tutto il testo esterno.

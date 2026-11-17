@@ -36,7 +36,7 @@ function completedB(): TrainingState {
 describe("Confronto con l’ultima giornata completata", () => {
   it("recupera B dello stesso blocco anche saltando settimane", () => {
     const state = beginSession(completed(completed(completedB(), "D"), "D"), "B");
-    expect(current(state).week).toBe(3);
+    expect(current(state).week).toBe(1);
     const previous = previousCompletedSession(state, current(state));
     expect(previous?.day).toBe("B");
     expect(previous?.week).toBe(1);
@@ -112,7 +112,7 @@ describe("Confronto con l’ultima giornata completata", () => {
     const restored = parseBackup(JSON.stringify(state));
     expect(restored.currentSessionId).toBe(state.currentSessionId);
     expect(restored.sessions).toHaveLength(3);
-    expect(cursor(restored, block.id)).toEqual({ day: "A", week: 2 });
+    expect(cursor(restored, block.id)).toEqual({ day: "A", week: 1 });
     expect(current(restored).results["b1"]?.[0]).toEqual({
       weight: "42.5",
       reps: "9",

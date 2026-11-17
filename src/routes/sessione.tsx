@@ -1,12 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowLeft, Check, CheckCheck, LockKeyhole, Pencil } from "lucide-react";
+import { ArrowLeft, CheckCheck, LockKeyhole, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeading } from "@/components/app-shell";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { useTraining } from "@/components/training-provider";
 import { closeSession, previousCompletedSession, sessionSnapshot } from "@/lib/training";
 import { PlanNotes } from "@/components/plan-notes";
+import { WorkoutExercise } from "@/components/workout-exercise";
 export const Route = createFileRoute("/sessione")({
   head: () => ({
     meta: [
@@ -105,92 +106,18 @@ function Workout() {
           .
         </p>
       ) : null}
-      {snapshot.exercises.map((e, i) => {
-        return (
-          <section className="workout-exercise" key={e.id}>
-            <div className="workout-exercise-title">
-              <span className="exercise-number">{String(i + 1).padStart(2, "0")}</span>
-              <div>
-                <h3>{e.name}</h3>
-                <p className="exercise-target">
-                  {e.sets} serie × {e.reps} ripetizioni
-                </p>
-              </div>
-            </div>
-            <PlanNotes coach={e.note} personal={e.personalNote ?? ""} />
-            <div className="set-row labels">
-              <span>Serie</span>
-              <span className="text-center">Peso · kg</span>
-              <span className="text-center">Rip. eseguite</span>
-              <span className="text-center">Fatto</span>
-            </div>
-            {(session.results[e.id] ?? []).map((row, j) => (
-              <div className="set-row" key={j}>
-                <div className="set-prescription">
-                  <span>Serie {j + 1}{e.seriesTargets?.[j]?.role ? ` · ${e.seriesTargets[j].role}` : ""}</span>
-                  <strong>{e.seriesTargets?.[j]?.reps || e.reps || "—"} <span>rip.</span></strong>
-                </div>
-                <span className="text-muted text-center">{j + 1}</span>
-                <input
-                  className="set-input"
-                  type="text"
-                  inputMode="decimal"
-                  aria-label={`${e.name}, serie ${j + 1}, peso`}
-                  placeholder="—"
-                  value={row.weight}
-                  onChange={(event) => {
-                    const v = event.target.value.replace(",", ".");
-                    if (/^\d*(\.\d*)?$/.test(v)) change(e.id, j, "weight", v);
-                  }}
-                />
-                <input
-                  className="set-input"
-                  type="text"
-                  inputMode="numeric"
-                  aria-label={`${e.name}, serie ${j + 1}, ripetizioni`}
-                  placeholder="—"
-                  value={row.reps}
-                  onChange={(event) => {
-                    if (/^\d*$/.test(event.target.value))
-                      change(e.id, j, "reps", event.target.value);
-                  }}
-                />
-                <Button
-                  variant="outline"
-                  className={`set-complete ${row.done ? "is-done" : ""}`}
-                  aria-label={`${row.done ? "Annulla completamento" : "Completa"} ${e.name}, serie ${j + 1}`}
-                  aria-pressed={row.done}
-                  disabled={
-                    row.weight === "" || row.reps === "" || !Number.isFinite(Number(row.weight))
-                  }
-                  onClick={() => change(e.id, j, "done", !row.done)}
-                >
-                  <Check />
-                </Button>
-                <p className="set-previous">
-                  Serie {j + 1} · Prec.:{" "}
-                  {previous?.results[e.id]?.[j]?.weight || previous?.results[e.id]?.[j]?.reps
-                    ? `${previous.results[e.id]?.[j]?.weight || "—"} kg × ${previous.results[e.id]?.[j]?.reps || "—"}`
-                    : "—"}
-                  {previous?.demo &&
-                  (previous.results[e.id]?.[j]?.weight || previous.results[e.id]?.[j]?.reps)
-                    ? " · esempio"
-                    : ""}
-                </p>
-                {(e.seriesNotes?.[j]?.coach || e.seriesNotes?.[j]?.personal) && (
-                  <div className="set-indication">
-                    <PlanNotes {...e.seriesNotes[j]} />
-                  </div>
-                )}
-              </div>
-            ))}
-          </section>
-        );
-      })}
+      {snapshot.exercises.map((e, i) => (
+        <WorkoutExercise
+          key={`${session.id}-${e.id}`}
+          exercise={e}
+          index={i}
+          rows={session.results[e.id] ?? []}
+          previous={previous}
+          change={change}
+        />
+      ))}
       <div className="sticky-action">
-        <span className="tiny text-muted">
-          {count} di {all.length} serie completate
-        </span>
+        <span className="tiny text-muted">{all.length - count} serie mancanti</span>
         <Button onClick={() => setConfirm(true)}>
           <CheckCheck />
           Chiudi allenamento

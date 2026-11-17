@@ -32,7 +32,7 @@ use the editor.
 ## Application architecture
 - Keep workout state and backup validation in the browser-safe training module; pure transitions make progression and idempotence testable.
 - Persist changes synchronously through the shared training provider, restoring only after hydration; this prevents lost input and SSR mismatches.
-- Derive progression from closed sessions by original order; reopening older sessions must not undo later completed workouts.
+- Derive progression from distinct closed days within the latest recorded week, proposing the next missing day in cycle order; preserve legacy week identities and never undo later workouts when reopening history.
 - Select the previous workout once by matching block and day among earlier closed sessions, then match each exercise by ID and each set by index; reordering and missing exercises must never substitute unrelated results.
 - Use separate TanStack routes with shared navigation in the root shell; each screen remains directly navigable.
 - Keep the Lovable Start build unchanged and provide a separate client-only Vite configuration for GitHub Pages; static hosting has no server runtime.
@@ -45,3 +45,4 @@ use the editor.
 
 - Keep active day order explicit and preserve letter identities on removal; legacy blocks default to four days, while session snapshots retain the original cycle and plan.
 - Use pure day-count transitions and explicit confirmation for removal; draft edits must not mutate persisted sessions.
+- Keep exercise expansion local to each workout exercise and derive completion from saved set results; reopening reveals every set without changing recorded data.

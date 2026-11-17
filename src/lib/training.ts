@@ -235,25 +235,33 @@ export function initialState(): TrainingState {
 }
 
 export function cursor(state: TrainingState, blockId: string): { day: Day; week: number } {
-  const latest = state.sessions
+  const closed = state.sessions
     .filter((s) => s.blockId === blockId && s.closedAt)
-    .sort((a, b) => b.order - a.order)[0];
+    .sort((a, b) => b.order - a.order);
+  const latest = closed[0];
   const block = state.blocks.find((b) => b.id === blockId);
   const order = block ? blockDays(block) : days.slice(0, 4);
   if (!latest) return { day: order[0] ?? "A", week: 1 };
-  if (!order.includes(latest.day)) {
-    const originalOrder = latest.snapshot?.cycleDays ?? days.slice(0, 4);
-    const following = originalOrder
-      .slice(originalOrder.indexOf(latest.day) + 1)
-      .find((d) => order.includes(d));
-    return { day: following ?? order[0] ?? "A", week: latest.week + (following ? 0 : 1) };
-  }
-  const index = order.indexOf(latest.day);
-  const next = index + 1;
+  // Preserve recorded week identities, including legacy backups and reopened sessions.
+  const week = Math.max(...closed.map((s) => s.week));
+  const completed = new Set(closed.filter((s) => s.week === week).map((s) => s.day));
+  if (order.every((day) => completed.has(day))) return { day: order[0] ?? "A", week: week + 1 };
+  const originalOrder = latest.snapshot?.cycleDays ?? order;
+  const index = originalOrder.indexOf(latest.day);
+  const following = [
+    ...originalOrder.slice(index + 1),
+    ...originalOrder.slice(0, index + 1),
+    ...order,
+  ];
   return {
-    day: order[next] ?? order[0] ?? "A",
-    week: latest.week + (next >= order.length ? 1 : 0),
+    day: following.find((day) => order.includes(day) && !completed.has(day)) ?? order[0] ?? "A",
+    week,
   };
+}
+
+export function exerciseProgress(rows: Session["results"][string]) {
+  const remaining = rows.filter((row) => !row.done).length;
+  return { remaining, complete: rows.length > 0 && remaining === 0 };
 }
 
 export function beginSession(state: TrainingState, day: Day): TrainingState {

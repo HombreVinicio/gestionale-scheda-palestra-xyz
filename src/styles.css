@@ -314,7 +314,8 @@ h3 {
   margin-bottom: 12px;
   border-bottom: 1px solid var(--border);
 }
-.home-progress-heading, .home-progress-footer {
+.home-progress-heading,
+.home-progress-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -330,7 +331,8 @@ h3 {
 .home-progress h2 {
   font-size: 15px;
 }
-.home-progress-heading span, .home-progress-footer span {
+.home-progress-heading span,
+.home-progress-footer span {
   font-size: 13px;
   color: var(--muted-foreground);
 }
@@ -576,11 +578,50 @@ progress::-moz-progress-bar {
   margin: 0 0 4px;
 }
 .set-previous {
-  grid-column: 2 / 4;
   color: var(--muted-foreground);
   font-size: 12px;
   line-height: 1.5;
   overflow-wrap: anywhere;
+  text-align: center;
+  align-self: start;
+}
+.set-previous-weight {
+  grid-column: 2;
+}
+.set-previous-reps {
+  grid-column: 3;
+}
+.set-previous-label {
+  grid-column: 1;
+  font-size: 11px;
+  color: var(--muted-foreground);
+  align-self: start;
+}
+.workout-exercise-toggle {
+  width: 100%;
+  height: auto;
+  min-height: 44px;
+  padding: 0;
+  justify-content: flex-start;
+  white-space: normal;
+  text-align: left;
+  gap: 12px;
+}
+.workout-exercise-name {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 1.4;
+}
+.exercise-remaining {
+  margin-top: 12px;
+  color: var(--muted-foreground);
+  font-size: 14px;
+}
+.workout-exercise.is-collapsed {
+  padding-block: 8px;
 }
 .editor-notes {
   margin: 12px 0 16px;
@@ -1325,11 +1366,16 @@ select.field-input {
 .set-complete {
   height: 48px;
 }
-.set-previous, .plan-notes, .exercise-target, .back-link,
-.editor-notes summary, .series-note-editor h3 {
+.set-previous,
+.plan-notes,
+.exercise-target,
+.back-link,
+.editor-notes summary,
+.series-note-editor h3 {
   font-size: 14px;
 }
-.set-row.labels, .save-status {
+.set-row.labels,
+.save-status {
   font-size: 12px;
 }
 @media (max-width: 640px) {
@@ -1344,7 +1390,8 @@ select.field-input {
   .import-dock .day-selector button {
     min-width: 68px;
   }
-  .workout-exercise h3, .exercise-preview h3 {
+  .workout-exercise h3,
+  .exercise-preview h3 {
     font-size: 18px;
     line-height: 1.4;
     overflow-wrap: anywhere;
@@ -1352,7 +1399,10 @@ select.field-input {
   .field-input {
     font-size: 16px;
   }
-  .eyebrow, .hero-meta, .hero-description, .bottom-nav a,
+  .eyebrow,
+  .hero-meta,
+  .hero-description,
+  .bottom-nav a,
   .sticky-action .tiny {
     font-size: 12px;
   }

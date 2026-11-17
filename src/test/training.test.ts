@@ -28,13 +28,15 @@ describe("Regole allenamenti", () => {
     expect(cursor(complete(empty(), day), "demo-block-1")).toEqual({ day: next, week: 1 });
   });
   it("dopo D passa ad A della settimana successiva", () => {
-    expect(cursor(complete(empty(), "D"), "demo-block-1")).toEqual({ day: "A", week: 2 });
+    expect(
+      cursor(complete(complete(complete(complete(empty(), "A"), "B"), "C"), "D"), "demo-block-1"),
+    ).toEqual({ day: "A", week: 2 });
   });
   it("un doppio tocco su chiusura non avanza due volte", () => {
     const started = beginSession(empty(), "D");
     const closed = closeSession(started, started.currentSessionId ?? "missing");
     expect(closeSession(closed, started.currentSessionId ?? "missing")).toBe(closed);
-    expect(cursor(closed, "demo-block-1")).toEqual({ day: "A", week: 2 });
+    expect(cursor(closed, "demo-block-1")).toEqual({ day: "A", week: 1 });
   });
   it("un doppio inizio mantiene una sola sessione", () => {
     const s = beginSession(empty(), "A");
