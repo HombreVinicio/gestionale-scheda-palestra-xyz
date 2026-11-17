@@ -47,7 +47,6 @@ export function WorkoutExercise({ exercise: e, index, rows, previous, change }: 
             <span className="text-center">Fatto</span>
           </div>
           {rows.map((row, j) => {
-            if (row.done && !showAll) return null;
             const prior = previous?.results[e.id]?.[j];
             return (
               <div className="set-row" key={j}>
