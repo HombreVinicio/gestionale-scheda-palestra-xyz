@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { PageHeading } from "@/components/app-shell";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { useTraining } from "@/components/training-provider";
-import { closeSession, previousCompletedSession, sessionSnapshot } from "@/lib/training";
+import { closeSession, previousCompletedSession, sessionSnapshot, supersetClass
+} from "@/lib/training";
 import { PlanNotes } from "@/components/plan-notes";
 import { WorkoutExercise } from "@/components/workout-exercise";
 export const Route = createFileRoute("/sessione")({
@@ -109,6 +110,7 @@ function Workout() {
       {snapshot.exercises.map((e, i) => (
         <WorkoutExercise
           key={`${session.id}-${e.id}`}
+          superset={supersetClass(snapshot.exercises, i)}
           exercise={e}
           index={i}
           rows={session.results[e.id] ?? []}

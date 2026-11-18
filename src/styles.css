@@ -1410,3 +1410,9 @@ select.field-input {
     font-size: 14px;
   }
 }
+
+.superset { border-left: 3px solid var(--primary); margin-top: 0; margin-bottom: 0; border-radius: 0; }
+.superset-first { position: relative; margin-top: 18px; border-top-left-radius: 10px; }
+.superset-first::before { content: "SUPER SERIE"; position: absolute; top: -16px; left: 0; font-size: 11px; font-weight: 700; letter-spacing: .08em; color: var(--primary); }
+.superset-last { margin-bottom: 12px; border-bottom-left-radius: 10px; }
+.home-progress-footer .btn, .home-progress-footer button { margin-left: auto; }

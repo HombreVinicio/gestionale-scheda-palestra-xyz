@@ -10,6 +10,7 @@ import {
   Pencil,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ConfirmModal } from "@/components/confirm-modal";
 import { EmptyBlock } from "@/components/app-shell";
 import { useTraining } from "@/components/training-provider";
 import {
@@ -18,6 +19,8 @@ import {
   blockDays,
   formatDate,
   volume,
+  closeWeek,
+  supersetClass,
   type Day,
 } from "@/lib/training";
 import trainingImage from "@/assets/training.jpg";
@@ -44,6 +47,7 @@ export const Route = createFileRoute("/")({
 function TrainingHome() {
   const { state, update, ready } = useTraining();
   const navigate = useNavigate();
+  const [closing, setClosing] = useState(false);
   const [chosenDay, setChosenDay] = useState<Day | null>(null);
   const block = state.blocks.find((b) => b.id === state.activeBlockId);
   const current = state.sessions.find((s) => s.id === state.currentSessionId);
@@ -104,6 +108,9 @@ function TrainingHome() {
         <div className="home-progress-footer">
           <span>{new Set(completedDays).size} / {order.length} allenamenti completati</span>
           <progress value={new Set(completedDays).size} max={order.length} aria-label="Giornate completate nella settimana" />
+          <Button variant="outline" size="sm" disabled={!ready || Boolean(current)} onClick={() => setClosing(true)}>
+            Chiudi settimana
+          </Button>
         </div>
       </section>
       <div className="dashboard-grid">
@@ -132,7 +139,7 @@ function TrainingHome() {
             ))}
           </div>
           {exercises.map((e, i) => (
-            <div className="exercise-preview" key={e.id}>
+            <div className={`exercise-preview ${supersetClass(exercises, i)}`} key={e.id}>
               <span className="exercise-number">{String(i + 1).padStart(2, "0")}</span>
               <div>
                 <h3>{e.name}</h3>
@@ -195,6 +202,19 @@ function TrainingHome() {
           )}
         </aside>
       </div>
+      {closing && (
+        <ConfirmModal
+          title={`Chiudere la settimana ${position.week}?`}
+          description={`${order.length - new Set(completedDays).size} allenamenti non fatti resteranno saltati. Il prossimo sarà Settimana ${position.week + 1}, Giorno ${order[0]}.`}
+          confirm="Chiudi settimana"
+          onCancel={() => setClosing(false)}
+          onConfirm={() => {
+            update(closeWeek);
+            setClosing(false);
+            setChosenDay(null);
+          }}
+        />
+      )}
     </>
   );
 }

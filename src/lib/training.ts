@@ -45,6 +45,7 @@ const exerciseSchema = z.object({
   seriesTargets: z.array(z.object({ role: z.string(), reps: z.string() })).optional(),
   importSource: z.string().optional(),
   reviewIssues: z.array(z.string()).optional(),
+  supersetNext: z.boolean().optional(),
 });
 const blockSchema = z.object({
   id: z.string(),
@@ -63,6 +64,7 @@ const blockSchema = z.object({
     .catchall(notesSchema)
     .optional(),
   pendingNotes: z.array(pendingNoteSchema).optional(),
+  closedWeeks: z.array(z.number().int().min(1)).optional(),
   accessories: z.array(pendingNoteSchema).optional(),
   plan: z
     .object({
@@ -241,9 +243,11 @@ export function cursor(state: TrainingState, blockId: string): { day: Day; week:
   const latest = closed[0];
   const block = state.blocks.find((b) => b.id === blockId);
   const order = block ? blockDays(block) : days.slice(0, 4);
-  if (!latest) return { day: order[0] ?? "A", week: 1 };
+  const forced = block?.closedWeeks ?? [];
+  if (!latest && !forced.length) return { day: order[0] ?? "A", week: 1 };
   // Preserve recorded week identities, including legacy backups and reopened sessions.
-  const week = Math.max(...closed.map((s) => s.week));
+  const week = Math.max(0, ...closed.map((s) => s.week), ...forced);
+  if (forced.includes(week) || !latest) return { day: order[0] ?? "A", week: week + 1 };
   const completed = new Set(closed.filter((s) => s.week === week).map((s) => s.day));
   if (order.every((day) => completed.has(day))) return { day: order[0] ?? "A", week: week + 1 };
   const originalOrder = latest.snapshot?.cycleDays ?? order;
@@ -480,4 +484,26 @@ export function removeBlockDays(block: Block, removed: Day[], destination: Day |
     plan[d] = [];
   });
   return { ...block, plan, dayOrder: remaining };
+}
+
+/** Marks the current week as finished even with missing days; next workouts start a new week. */
+export function closeWeek(state: TrainingState): TrainingState {
+  if (state.currentSessionId || !state.activeBlockId) return state;
+  const { week } = cursor(state, state.activeBlockId);
+  return {
+    ...state,
+    blocks: state.blocks.map((b) =>
+      b.id === state.activeBlockId
+        ? { ...b, closedWeeks: [...new Set([...(b.closedWeeks ?? []), week])] }
+        : b,
+    ),
+  };
+}
+
+/** Classes for exercises linked as a superset with the following one. */
+export function supersetClass(list: Exercise[], i: number) {
+  const prev = list[i - 1]?.supersetNext && list[i - 1];
+  const next = list[i]?.supersetNext && list[i + 1];
+  if (!prev && !next) return "";
+  return `superset ${prev ? "" : "superset-first"} ${next ? "" : "superset-last"}`;
 }

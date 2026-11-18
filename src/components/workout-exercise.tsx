@@ -9,6 +9,7 @@ type Props = {
   index: number;
   rows: Session["results"][string];
   previous: Session | undefined;
+  superset?: string;
   change: (
     exerciseId: string,
     index: number,
@@ -17,12 +18,12 @@ type Props = {
   ) => void;
 };
 
-export function WorkoutExercise({ exercise: e, index, rows, previous, change }: Props) {
+export function WorkoutExercise({ exercise: e, index, rows, previous, change, superset = "" }: Props) {
   const [showAll, setShowAll] = useState(false);
   const { remaining, complete } = exerciseProgress(rows);
   const expanded = !complete || showAll;
   return (
-    <section className={`workout-exercise ${expanded ? "" : "is-collapsed"}`}>
+    <section className={`workout-exercise ${superset} ${expanded ? "" : "is-collapsed"}`}>
       <Button
         variant="ghost"
         className="workout-exercise-toggle"

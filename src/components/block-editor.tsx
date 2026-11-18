@@ -1,10 +1,11 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
+import { Link2, ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DayCountEditor } from "@/components/day-count-editor";
 import {
   days,
   blockDays,
+  supersetClass,
   emptyNotes,
   reorderExercise,
   type Block,
@@ -236,7 +237,7 @@ export function BlockEditor({
         />
       </details>
       {(block.plan[day] ?? []).map((e, i) => (
-        <section className="edit-exercise" key={e.id}>
+        <section className={`edit-exercise ${supersetClass(block.plan[day] ?? [], i)}`} key={e.id}>
           <div className="edit-header">
             <span className="exercise-day-label">
               Giorno {day} · {i + 1}
@@ -313,6 +314,17 @@ export function BlockEditor({
               </Button>
             </div>
           </div>
+          {i < (block.plan[day]?.length ?? 0) - 1 && (
+            <Button
+              variant={e.supersetNext ? "default" : "outline"}
+              size="sm"
+              aria-pressed={Boolean(e.supersetNext)}
+              onClick={() => edit(e.id, { supersetNext: !e.supersetNext })}
+            >
+              <Link2 />
+              {e.supersetNext ? "Super serie con il successivo" : "Collega al successivo"}
+            </Button>
+          )}
           {e.reviewIssues?.length ? (
             <div>
               <p className="error-message">{e.reviewIssues.join(" · ")}</p>
