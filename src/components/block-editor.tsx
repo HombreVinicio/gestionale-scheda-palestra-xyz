@@ -1,9 +1,8 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowDown, ArrowUp, Check, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DayCountEditor } from "@/components/day-count-editor";
 import {
-  assignPendingNote,
   days,
   blockDays,
   emptyNotes,
@@ -12,7 +11,6 @@ import {
   type Day,
   type Exercise,
   type Notes,
-  type NoteTarget,
 } from "@/lib/training";
 
 function NoteFields({
@@ -59,33 +57,12 @@ function PendingNote({
   onChange: (b: Block) => void;
 }) {
   const note = block.pendingNotes?.find((n) => n.id === id);
-  const [target, setTarget] = useState("");
-  const [kind, setKind] = useState<keyof Notes>("coach");
-  const options: { value: string; label: string; target: NoteTarget }[] = [
-    { value: "block", label: "Blocco", target: { level: "block" } },
-  ];
-  blockDays(block).forEach((day) => {
-    options.push({ value: `day:${day}`, label: `Giorno ${day}`, target: { level: "day", day } });
-    block.plan[day]?.forEach((e) => {
-      options.push({
-        value: e.id,
-        label: `${day} · ${e.name}`,
-        target: { level: "exercise", day, exerciseId: e.id },
-      });
-      for (let i = 0; i < e.sets; i++)
-        options.push({
-          value: `${e.id}:${i}`,
-          label: `${day} · ${e.name} · Serie ${i + 1}`,
-          target: { level: "series", day, exerciseId: e.id, series: i },
-        });
-    });
-  });
   if (!note) return null;
   return (
     <div className="pending-note">
       <span className="field-label">{note.source}</span>
       <textarea
-        aria-label={`Nota da verificare ${note.source}`}
+        aria-label={`Testo non riconosciuto ${note.source}`}
         className="field-input"
         value={note.text}
         rows={2}
@@ -99,43 +76,15 @@ function PendingNote({
           })
         }
       />
-      <div className="pending-actions">
-        <select
-          className="field-input"
-          aria-label={`Associa nota ${note.source}`}
-          value={target}
-          onChange={(e) => setTarget(e.target.value)}
-        >
-          <option value="">Da verificare</option>
-          {options.map((o) => (
-            <option key={o.value} value={o.value}>
-              {o.label}
-            </option>
-          ))}
-        </select>
-        <select
-          className="field-input"
-          aria-label={`Tipo nota ${note.source}`}
-          value={kind}
-          onChange={(e) => setKind(e.target.value === "personal" ? "personal" : "coach")}
-        >
-          <option value="coach">Coach</option>
-          <option value="personal">Personale</option>
-        </select>
-        <Button
-          variant="outline"
-          size="icon"
-          title="Associa nota"
-          aria-label={`Conferma associazione ${note.source}`}
-          disabled={!options.some((o) => o.value === target) || !note.text.trim()}
-          onClick={() => {
-            const selected = options.find((o) => o.value === target);
-            if (selected) onChange(assignPendingNote(block, id, selected.target, kind));
-          }}
-        >
-          <Check />
-        </Button>
-      </div>
+      <Button
+        variant="outline"
+        onClick={() =>
+          onChange({ ...block, pendingNotes: block.pendingNotes?.filter((n) => n.id !== id) ?? [] })
+        }
+      >
+        <Trash2 />
+        Elimina
+      </Button>
     </div>
   );
 }
@@ -236,7 +185,7 @@ export function BlockEditor({
       )}
       {Boolean(block.pendingNotes?.length) && (
         <section className="pending-section">
-          <h2>Da verificare · {block.pendingNotes?.length}</h2>
+          <h2>Testo non riconosciuto · {block.pendingNotes?.length}</h2>
           {block.pendingNotes?.map((n) => (
             <PendingNote key={n.id} block={block} id={n.id} onChange={change} />
           ))}
@@ -367,8 +316,20 @@ export function BlockEditor({
           {e.reviewIssues?.length ? (
             <div>
               <p className="error-message">{e.reviewIssues.join(" · ")}</p>
-              <Button variant="outline" onClick={() => edit(e.id, { reviewIssues: [] })}>
-                Conferma verifica
+              <Button
+                variant="outline"
+                onClick={() =>
+                  change({
+                    ...block,
+                    plan: {
+                      ...block.plan,
+                      [day]: (block.plan[day] ?? []).filter((x) => x.id !== e.id),
+                    },
+                  })
+                }
+              >
+                <Trash2 />
+                Elimina esercizio
               </Button>
             </div>
           ) : null}

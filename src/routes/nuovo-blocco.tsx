@@ -99,8 +99,7 @@ function NewBlock() {
       ) : (
         <>
           <div className="notice">
-            Il PDF viene letto solo su questo dispositivo. Le indicazioni senza associazione certa
-            restano da verificare. I PDF scansionati richiedono inserimento manuale.
+            Il PDF viene letto solo su questo dispositivo. I PDF scansionati richiedono inserimento manuale.
           </div>
           <div className="upload-zone">
             <Upload size={36} />
@@ -188,7 +187,7 @@ function NewBlock() {
       {confirm && draft && (
         <ConfirmModal
           title={`Attivare ${draft.block.name}?`}
-          description={`Il blocco attuale sarà archiviato. Il nuovo inizia dalla settimana 1, giorno A.${draft.block.pendingNotes?.length ? ` ${draft.block.pendingNotes.length} indicazioni restano da verificare: saranno conservate nella scheda.` : ""}`}
+          description={`Il blocco attuale sarà archiviato. Il nuovo inizia dalla settimana 1, giorno A.${draft.block.pendingNotes?.length ? ` ${draft.block.pendingNotes.length} testi non riconosciuti restano nella scheda.` : ""}`}
           confirm="Attiva blocco"
           onCancel={() => setConfirm(false)}
           onConfirm={() => {
