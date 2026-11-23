@@ -40,7 +40,7 @@ function EditBlock() {
       ? state.editorDraft.block
       : active;
   return (
-    <div className="content-narrow">
+    <div className="content-narrow import-review">
       <Link to="/" className="back-link">
         <ArrowLeft size={15} />
         Allenamento
@@ -58,27 +58,29 @@ function EditBlock() {
             editorDraft: { mode: "edit", block, source: "", imported: false },
           }))
         }
+        fixedActions={
+          <div className="import-dock-actions items-center">
+            <span className="tiny text-muted" role="status">
+              {saveError ? "Salvataggio non riuscito" : "Bozza salvata"}
+            </span>
+            <Button
+              disabled={!validBlock(draft)}
+              onClick={() => {
+                update((s) => saveBlock(s, draft));
+                void navigate({ to: "/" });
+              }}
+            >
+              <Check />
+              Salva blocco
+            </Button>
+          </div>
+        }
       />
       {!validBlock(draft) && (
         <p className="error-message">
           Completa tutte le giornate, i nomi e le ripetizioni. Serie: da 1 a 12.
         </p>
       )}
-      <div className="sticky-action editor-action">
-        <span className="tiny text-muted">
-          {saveError ? "Salvataggio non riuscito" : "Bozza salvata"}
-        </span>
-        <Button
-          disabled={!validBlock(draft)}
-          onClick={() => {
-            update((s) => saveBlock(s, draft));
-            void navigate({ to: "/" });
-          }}
-        >
-          <Check />
-          Salva blocco
-        </Button>
-      </div>
     </div>
   );
 }

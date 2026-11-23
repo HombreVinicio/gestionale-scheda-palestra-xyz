@@ -1,4 +1,5 @@
 # App allenamenti
+- [x] Modifica blocco attivo: correzione delle singole serie con giornate e Salva blocco sempre visibili; verificati salvataggio, riapertura e nuova sessione senza alterare quelle esistenti.
 - [x] Controllo esteso delle prescrizioni: riepiloghi e sessioni nuove corretti; verificati scheda, chiusura, storico e backup con conferma, senza alterare sessioni già concluse.
 - [x] Correggere i range ripetuti nelle serie importate e rendere ogni prescrizione modificabile; verificati PDF reale, salvataggio, allenamento, telefono e computer.
 - [x] Allineare peso e ripetizioni precedenti, chiudere e riaprire esercizi completati, mostrare serie mancanti.
