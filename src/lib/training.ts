@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { resolvedExercisePrescription } from "@/lib/prescription";
 
 export const days = [
   "A",
@@ -282,7 +283,10 @@ export function beginSession(state: TrainingState, day: Day): TrainingState {
     startedAt: new Date().toISOString(),
     closedAt: null,
     demo: false,
-    snapshot: makeSnapshot(block, day),
+    snapshot: {
+      ...makeSnapshot(block, day),
+      exercises: (block.plan[day] ?? []).map(resolvedExercisePrescription),
+    },
     results: Object.fromEntries(
       (block.plan[day] ?? []).map((e) => [
         e.id,
@@ -300,7 +304,20 @@ export function closeSession(state: TrainingState, id: string): TrainingState {
     ...state,
     currentSessionId: null,
     sessions: state.sessions.map((s) =>
-      s.id === id ? { ...s, closedAt: new Date().toISOString() } : s,
+      s.id === id
+        ? {
+            ...s,
+            closedAt: new Date().toISOString(),
+            ...(s.snapshot
+              ? {
+                  snapshot: {
+                    ...s.snapshot,
+                    exercises: s.snapshot.exercises.map(resolvedExercisePrescription),
+                  },
+                }
+              : {}),
+          }
+        : s,
     ),
   };
 }

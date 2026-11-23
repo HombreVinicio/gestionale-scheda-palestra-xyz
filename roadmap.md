@@ -1,4 +1,5 @@
 # App allenamenti
+- [x] Controllo esteso delle prescrizioni: riepiloghi e sessioni nuove corretti; verificati scheda, chiusura, storico e backup con conferma, senza alterare sessioni già concluse.
 - [x] Correggere i range ripetuti nelle serie importate e rendere ogni prescrizione modificabile; verificati PDF reale, salvataggio, allenamento, telefono e computer.
 - [x] Allineare peso e ripetizioni precedenti, chiudere e riaprire esercizi completati, mostrare serie mancanti.
 - [x] Giornate in ordine libero: avanzare settimana solo dopo tutte le giornate; test e verifica su telefono.

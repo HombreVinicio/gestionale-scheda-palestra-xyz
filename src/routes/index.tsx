@@ -24,6 +24,7 @@ import {
   type Day,
 } from "@/lib/training";
 import trainingImage from "@/assets/training.jpg";
+import { exerciseRepetitionsSummary } from "@/lib/prescription";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -56,9 +57,10 @@ function TrainingHome() {
   const order = blockDays(block);
   const selected =
     chosenDay && order.includes(chosenDay) ? chosenDay : (current?.day ?? position.day);
-  const exercises = current?.day === selected
-    ? (current.snapshot?.exercises ?? block.plan[selected] ?? [])
-    : (block.plan[selected] ?? []);
+  const exercises =
+    current?.day === selected
+      ? (current.snapshot?.exercises ?? block.plan[selected] ?? [])
+      : (block.plan[selected] ?? []);
   const workoutDay = current?.day ?? position.day;
   const latest = state.sessions
     .filter((s) => s.blockId === block.id && s.closedAt)
@@ -102,13 +104,29 @@ function TrainingHome() {
       </section>
       <section className="home-progress" aria-label="Blocco attivo">
         <div className="home-progress-heading">
-          <div><h2>Blocco attivo</h2><span>{block.name}</span></div>
-          <strong>Settimana {current?.week ?? position.week} · Giorno {workoutDay}</strong>
+          <div>
+            <h2>Blocco attivo</h2>
+            <span>{block.name}</span>
+          </div>
+          <strong>
+            Settimana {current?.week ?? position.week} · Giorno {workoutDay}
+          </strong>
         </div>
         <div className="home-progress-footer">
-          <span>{new Set(completedDays).size} / {order.length} allenamenti completati</span>
-          <progress value={new Set(completedDays).size} max={order.length} aria-label="Giornate completate nella settimana" />
-          <Button variant="outline" size="sm" disabled={!ready || Boolean(current)} onClick={() => setClosing(true)}>
+          <span>
+            {new Set(completedDays).size} / {order.length} allenamenti completati
+          </span>
+          <progress
+            value={new Set(completedDays).size}
+            max={order.length}
+            aria-label="Giornate completate nella settimana"
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={!ready || Boolean(current)}
+            onClick={() => setClosing(true)}
+          >
             Chiudi settimana
           </Button>
         </div>
@@ -144,7 +162,8 @@ function TrainingHome() {
               <div>
                 <h3>{e.name}</h3>
                 <p>
-                  {e.sets} serie <span className="accent-text">×</span> {e.reps} ripetizioni
+                  {e.sets} serie <span className="accent-text">×</span>{" "}
+                  {exerciseRepetitionsSummary(e)} ripetizioni
                 </p>
               </div>
             </div>

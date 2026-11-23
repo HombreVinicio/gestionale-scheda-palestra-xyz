@@ -32,6 +32,20 @@ export function exerciseSeriesTargets(exercise: Exercise) {
   });
 }
 
+export function exerciseRepetitionsSummary(exercise: Exercise): string {
+  const targets = exerciseSeriesTargets(exercise);
+  if (targets.every((target) => target.reps === targets[0]?.reps)) return targets[0]?.reps || "—";
+  return targets.map((target) => target.reps || "—").join(" + ");
+}
+
+export function resolvedExercisePrescription(exercise: Exercise): Exercise {
+  return {
+    ...exercise,
+    seriesTargets: exerciseSeriesTargets(exercise),
+    reps: exerciseRepetitionsSummary(exercise),
+  };
+}
+
 export function changeExerciseSeries(
   exercise: Exercise,
   index: number,

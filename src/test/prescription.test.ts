@@ -5,8 +5,16 @@ import {
   resizeExerciseSeries,
   setExerciseRepetitions,
   validExercisePrescription,
+  resolvedExercisePrescription,
 } from "@/lib/prescription";
-import { beginSession, initialState, parseBackup, type Exercise } from "@/lib/training";
+import {
+  beginSession,
+  closeSession,
+  initialState,
+  parseBackup,
+  saveBlock,
+  type Exercise,
+} from "@/lib/training";
 
 const example = (): Exercise => ({
   id: "test",
@@ -17,6 +25,50 @@ const example = (): Exercise => ({
   muscle: "",
 });
 describe("Prescrizioni delle singole serie", () => {
+  it("usa gli obiettivi delle singole serie anche quando il riepilogo vecchio è incoerente", () => {
+    const exercise = example();
+    exercise.seriesTargets = [
+      { role: "", reps: "6–7" },
+      { role: "", reps: "12" },
+      { role: "", reps: "8–10" },
+    ];
+    expect(resolvedExercisePrescription(exercise).reps).toBe("6–7 + 12 + 8–10");
+    expect(exercise.reps).toBe("6-7 + 8-10 + 8-10");
+  });
+  it("risolve nuove sessioni e nuove chiusure senza toccare scheda, risultati o sessioni già concluse", () => {
+    const state = initialState();
+    const block = state.blocks[0];
+    if (!block) throw new Error("Blocco mancante");
+    block.plan.A = [example()];
+    const settled = structuredClone(state.sessions);
+    const started = beginSession(state, "A");
+    expect(
+      started.sessions.at(-1)?.snapshot?.exercises[0]?.seriesTargets?.map((t) => t.reps),
+    ).toEqual(["6–7", "8–10", "8–10"]);
+    expect(block.plan.A[0]?.seriesTargets).toBeUndefined();
+    const session = started.sessions.at(-1);
+    if (!session?.snapshot) throw new Error("Sessione mancante");
+    session.snapshot.exercises = [example()];
+    session.results["test"] = [
+      { weight: "40", reps: "7", done: true },
+      { weight: "35", reps: "10", done: true },
+      { weight: "30", reps: "9", done: true },
+    ];
+    const closed = closeSession(started, session.id);
+    expect(
+      closed.sessions.at(-1)?.snapshot?.exercises[0]?.seriesTargets?.map((t) => t.reps),
+    ).toEqual(["6–7", "8–10", "8–10"]);
+    expect(closed.sessions.at(-1)?.results).toEqual(session.results);
+    expect(closed.sessions.slice(0, settled.length)).toEqual(settled);
+    const restored = parseBackup(JSON.stringify(closed));
+    expect(restored.sessions.at(-1)).toEqual(closed.sessions.at(-1));
+    expect(
+      saveBlock(restored, {
+        ...block,
+        plan: { ...block.plan, A: [changeExerciseSeries(example(), 0, { reps: "15" })] },
+      }).sessions,
+    ).toEqual(restored.sessions);
+  });
   it("corregge vecchi import senza obiettivi individuali", () => {
     expect(exerciseSeriesTargets(example()).map((t) => t.reps)).toEqual(["6–7", "8–10", "8–10"]);
   });

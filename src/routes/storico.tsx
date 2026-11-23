@@ -14,6 +14,7 @@ import {
   volume,
 } from "@/lib/training";
 import { PlanNotes } from "@/components/plan-notes";
+import { exerciseSeriesTargets, exerciseRepetitionsSummary } from "@/lib/prescription";
 export const Route = createFileRoute("/storico")({
   validateSearch: (search: Record<string, unknown>): { sessione?: string | undefined } => ({
     sessione: typeof search["sessione"] === "string" ? search["sessione"] : undefined,
@@ -70,32 +71,38 @@ function TrainingHistory() {
         </div>
         <PlanNotes {...snapshot?.blockNotes} />
         <PlanNotes {...snapshot?.dayNotes} />
-        {(snapshot?.exercises ?? []).map((e) => (
-          <section className="workout-exercise" key={e.id}>
-            <h3>{e.name}</h3>
-            <p className="exercise-target">
-              {e.sets} serie × {e.reps} ripetizioni
-            </p>
-            <PlanNotes coach={e.note} personal={e.personalNote ?? ""} />
-            {selected.results[e.id]?.map((s, i) => (
-              <div className="result-line" key={i}>
-                <div>
-                  <span>Serie {i + 1}</span>
-                  {e.seriesTargets?.[i] && (
-                    <p className="exercise-target">
-                      {e.seriesTargets[i].role} · {e.seriesTargets[i].reps || "—"} rip.
-                    </p>
-                  )}
-                  <PlanNotes {...e.seriesNotes?.[i]} />
+        {(snapshot?.exercises ?? []).map((e) => {
+          // Closed sessions retain their recorded prescription exactly, including legacy imports.
+          const targets = selected.closedAt ? e.seriesTargets : exerciseSeriesTargets(e);
+          return (
+            <section className="workout-exercise" key={e.id}>
+              <h3>{e.name}</h3>
+              <p className="exercise-target">
+                {e.sets} serie × {selected.closedAt ? e.reps : exerciseRepetitionsSummary(e)}{" "}
+                ripetizioni
+              </p>
+              <PlanNotes coach={e.note} personal={e.personalNote ?? ""} />
+              {selected.results[e.id]?.map((s, i) => (
+                <div className="result-line" key={i}>
+                  <div>
+                    <span>Serie {i + 1}</span>
+                    {targets?.[i] && (
+                      <p className="exercise-target">
+                        {targets[i].role ? `${targets[i].role} · ` : ""}
+                        {targets[i].reps || "—"} rip.
+                      </p>
+                    )}
+                    <PlanNotes {...e.seriesNotes?.[i]} />
+                  </div>
+                  <strong>
+                    {s.weight || "—"} kg × {s.reps || "—"} rip.
+                  </strong>
+                  <span>{s.done ? <Check size={16} /> : "Non completata"}</span>
                 </div>
-                <strong>
-                  {s.weight || "—"} kg × {s.reps || "—"} rip.
-                </strong>
-                <span>{s.done ? <Check size={16} /> : "Non completata"}</span>
-              </div>
-            ))}
-          </section>
-        ))}
+              ))}
+            </section>
+          );
+        })}
         {selected.closedAt && selected.blockId === state.activeBlockId && (
           <>
             <Button
@@ -211,7 +218,8 @@ function TrainingHistory() {
               <div>
                 <h3>{e.name}</h3>
                 <p>
-                  {e.sets} serie × {e.reps} ripetizioni
+                  {e.sets} serie × {block.archived ? e.reps : exerciseRepetitionsSummary(e)}{" "}
+                  ripetizioni
                 </p>
                 <PlanNotes coach={e.note} personal={e.personalNote ?? ""} />
                 {e.seriesNotes?.slice(0, e.sets).map((n, i) =>
@@ -249,9 +257,7 @@ function TrainingHistory() {
                   >
                     <span className="session-icon">{s.day}</span>
                     <div className="details">
-                      <h3>
-                        Giorno {s.day}
-                      </h3>
+                      <h3>Giorno {s.day}</h3>
                       <p>
                         {formatDate(s.startedAt)} ·{" "}
                         {

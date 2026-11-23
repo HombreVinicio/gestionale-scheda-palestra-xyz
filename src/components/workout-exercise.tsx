@@ -3,7 +3,7 @@ import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PlanNotes } from "@/components/plan-notes";
 import { exerciseProgress, type Exercise, type Session } from "@/lib/training";
-import { exerciseSeriesTargets } from "@/lib/prescription";
+import { exerciseSeriesTargets, exerciseRepetitionsSummary } from "@/lib/prescription";
 
 type Props = {
   exercise: Exercise;
@@ -47,7 +47,7 @@ export function WorkoutExercise({
       {expanded && (
         <>
           <p className="exercise-target">
-            {e.sets} serie × {e.reps} ripetizioni
+            {e.sets} serie × {exerciseRepetitionsSummary(e)} ripetizioni
           </p>
           <PlanNotes coach={e.note} personal={e.personalNote ?? ""} />
           <div className="set-row labels">
