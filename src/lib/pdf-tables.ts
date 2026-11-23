@@ -1,4 +1,6 @@
 import { days, emptyNotes, type Block, type Day, type Exercise } from "@/lib/training";
+import { repetitionRange, splitSeriesRanges } from "@/lib/prescription";
+export { repetitionRange } from "@/lib/prescription";
 
 export type PdfText = { text: string; x: number; y: number; width: number; height: number };
 export type PdfRect = { left: number; right: number; bottom: number; top: number };
@@ -85,11 +87,6 @@ function cellsFor(page: PdfPage): Cell[] {
   });
   return cells;
 }
-export function repetitionRange(raw: string): string | null {
-  const s = raw.trim();
-  const m = /^(\d+)\s*(?:[\/–-]\s*(\d+))?\s*(?:rip\.?|reps)?$/i.exec(s);
-  return m ? `${m[1]}${m[2] ? `–${m[2]}` : ""}` : null;
-}
 export function exerciseFromCells(
   name: string,
   setsRaw: string,
@@ -104,7 +101,8 @@ export function exerciseFromCells(
     /^back\s*of{1,2}$/i.test(roles[1] ?? "");
   const n = /^\d+$/.test(setsRaw.trim()) ? Number(setsRaw.trim()) : topBack ? 2 : 0;
   if (!name.trim() || n < 1 || n > 12) return null;
-  const rawRanges = repsRaw.split("+");
+  const split = splitSeriesRanges(repsRaw, n);
+  const rawRanges = split ?? repsRaw.split("+");
   const ranges = rawRanges.map(repetitionRange);
   const issues: string[] = [];
   if (!repsRaw.trim()) issues.push("Ripetizioni mancanti");

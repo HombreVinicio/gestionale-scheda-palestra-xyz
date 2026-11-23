@@ -46,3 +46,4 @@ use the editor.
 - Keep active day order explicit and preserve letter identities on removal; legacy blocks default to four days, while session snapshots retain the original cycle and plan.
 - Use pure day-count transitions and explicit confirmation for removal; draft edits must not mutate persisted sessions.
 - Keep exercise expansion local to each workout exercise and derive completion from saved set results; reopening reveals every set without changing recorded data.
+- Resolve and edit per-set prescriptions through the browser-safe prescription module; recover only unambiguous legacy aggregates and preserve unrelated targets, notes, and session results.

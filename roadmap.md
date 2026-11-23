@@ -1,4 +1,5 @@
 # App allenamenti
+- [x] Correggere i range ripetuti nelle serie importate e rendere ogni prescrizione modificabile; verificati PDF reale, salvataggio, allenamento, telefono e computer.
 - [x] Allineare peso e ripetizioni precedenti, chiudere e riaprire esercizi completati, mostrare serie mancanti.
 - [x] Giornate in ordine libero: avanzare settimana solo dopo tutte le giornate; test e verifica su telefono.
 - [x] Homepage compatta: Nuovo blocco in alto, avanzamento prima della scheda e giornate consultabili durante una sessione; verifica telefono e desktop.

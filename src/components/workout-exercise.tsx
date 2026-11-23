@@ -3,6 +3,7 @@ import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PlanNotes } from "@/components/plan-notes";
 import { exerciseProgress, type Exercise, type Session } from "@/lib/training";
+import { exerciseSeriesTargets } from "@/lib/prescription";
 
 type Props = {
   exercise: Exercise;
@@ -18,10 +19,18 @@ type Props = {
   ) => void;
 };
 
-export function WorkoutExercise({ exercise: e, index, rows, previous, change, superset = "" }: Props) {
+export function WorkoutExercise({
+  exercise: e,
+  index,
+  rows,
+  previous,
+  change,
+  superset = "",
+}: Props) {
   const [showAll, setShowAll] = useState(false);
   const { remaining, complete } = exerciseProgress(rows);
   const expanded = !complete || showAll;
+  const targets = exerciseSeriesTargets(e);
   return (
     <section className={`workout-exercise ${superset} ${expanded ? "" : "is-collapsed"}`}>
       <Button
@@ -54,10 +63,10 @@ export function WorkoutExercise({ exercise: e, index, rows, previous, change, su
                 <div className="set-prescription">
                   <span>
                     Serie {j + 1}
-                    {e.seriesTargets?.[j]?.role ? ` · ${e.seriesTargets[j].role}` : ""}
+                    {targets[j]?.role ? ` · ${targets[j]?.role}` : ""}
                   </span>
                   <strong>
-                    {e.seriesTargets?.[j]?.reps || e.reps || "—"} <span>rip.</span>
+                    {targets[j]?.reps || "—"} <span>rip.</span>
                   </strong>
                 </div>
                 <span className="text-muted text-center">{j + 1}</span>

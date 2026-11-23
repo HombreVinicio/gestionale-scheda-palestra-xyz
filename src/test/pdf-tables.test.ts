@@ -32,6 +32,20 @@ function table(
   return p;
 }
 describe("Importazione riutilizzabile delle tabelle PDF", () => {
+  it.each(["6-7 + 8-10 + 8-10", "6/7\n8/10\n8/10"])(
+    "distribuisce tre range sulle tre serie: %s",
+    (raw) => {
+      const b = planFromPages(
+        [table(1, ["Esercizio", "Serie", "Ripetizioni"], [["Movimento di prova", "3", raw]])],
+        "Test",
+      );
+      expect(b.plan.A[0]?.seriesTargets?.map((target) => target.reps)).toEqual([
+        "6–7",
+        "8–10",
+        "8–10",
+      ]);
+    },
+  );
   it("elimina solo la bozza nuova mantenendo blocchi, sessione e avanzamento", () => {
     const s = beginSession(initialState(), "B");
     const block = s.blocks[0];
